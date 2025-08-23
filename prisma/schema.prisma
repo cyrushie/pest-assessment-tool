@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Lead {
+  id              String   @id @default(cuid())
+  name            String?
+  email           String?
+  phone           String?
+  pestType        String?
+  activityLevel   String?
+  location        String?
+  urgency         String?
+  source          String?
+  sessionId       String?
+  assessmentData  Json?
+  status          String   @default("new")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  events          AnalyticsEvent[]
+  
+  @@map("leads")
+}
+
+model AnalyticsEvent {
+  id          String   @id @default(cuid())
+  eventType   String   // assessment_started, assessment_completed, lead_generated, etc.
+  sessionId   String?
+  leadId      String?
+  properties  Json?    // Additional event properties
+  timestamp   DateTime @default(now())
+  
+  // Relations
+  lead        Lead?    @relation(fields: [leadId], references: [id])
+  
+  @@map("analytics_events")
+}
+
+model AssessmentSession {
+  id              String   @id @default(cuid())
+  sessionId       String   @unique
+  currentStep     Int      @default(0)
+  answers         Json?
+  pestType        String?
+  activityLevel   String?
+  completed       Boolean  @default(false)
+  source          String?
+  userAgent       String?
+  ipAddress       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("assessment_sessions")
+}
+
+model ContactSubmission {
+  id            String   @id @default(cuid())
+  name          String
+  email         String
+  phone         String?
+  message       String?
+  pestType      String?
+  activityLevel String?
+  sessionId     String?
+  status        String   @default("pending")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("contact_submissions")
+}

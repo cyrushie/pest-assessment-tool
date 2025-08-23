@@ -2,6 +2,8 @@ import type React from "react"
 import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
+import { getUser } from "@/lib/auth"
+import { AuthNav } from "@/components/auth-nav"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -11,11 +13,13 @@ export const metadata: Metadata = {
   generator: "v0.app",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const user = await getUser()
+
   return (
     <html lang="en">
       <head>
@@ -47,14 +51,7 @@ html {
       </head>
       <body>
         {children}
-        <div className="fixed top-4 right-4 z-40">
-          <a
-            href="/analytics"
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-all"
-          >
-            📊 Analytics
-          </a>
-        </div>
+        <AuthNav user={user} />
       </body>
     </html>
   )
