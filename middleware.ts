@@ -6,14 +6,15 @@ export async function middleware(request: NextRequest) {
   // Protect analytics routes
   if (request.nextUrl.pathname.startsWith("/analytics")) {
     const token = request.cookies.get("auth-token")?.value;
-
+    console.log(token);
     if (!token) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
     const userId = verifyTokenForMiddleware(token);
-
+    console.log(userId);
     if (!userId) {
+      console.log("user id doesnt exist in token");
       return NextResponse.redirect(new URL("/login", request.url));
     }
   }

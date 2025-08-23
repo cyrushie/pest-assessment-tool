@@ -1,10 +1,28 @@
-import jwt from "jsonwebtoken"
+// import jwt from "jsonwebtoken";
 
-export function verifyTokenForMiddleware(token: string): string | null {
+// export function verifyTokenForMiddleware(token: string): string | null {
+//   try {
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+//       userId: string;
+//     };
+//     return decoded.userId;
+//   } catch (error) {
+//     console.log(error);
+//     return null;
+//   }
+// }
+
+import { jwtVerify } from "jose";
+
+export async function verifyTokenForMiddleware(
+  token: string
+): Promise<string | null> {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string }
-    return decoded.userId
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+    const { payload } = await jwtVerify(token, secret);
+    return payload.userId as string;
   } catch (error) {
-    return null
+    console.error(error);
+    return null;
   }
 }
