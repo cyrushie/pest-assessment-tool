@@ -205,7 +205,7 @@ export default function PestAssessmentTool() {
                 Pest Assessment Tool
               </h1>
               <p className="text-muted-foreground">
-                Professional pest identification and consultation
+                Professional pest identification and consultation.
               </p>
             </div>
           </div>
