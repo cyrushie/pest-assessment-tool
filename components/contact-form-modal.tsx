@@ -1,66 +1,78 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Phone, MessageSquare, CheckCircle, Loader2 } from "lucide-react"
-import { trackLeadGenerated } from "@/lib/analytics"
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Phone, MessageSquare, CheckCircle, Loader2 } from "lucide-react";
 
 interface ContactFormData {
-  name: string
-  email: string
-  phone: string
-  preferredTime: string
-  notes: string
+  name: string;
+  email: string;
+  phone: string;
+  preferredTime: string;
+  notes: string;
 }
 
 interface ContactFormModalProps {
-  isOpen: boolean
-  onClose: () => void
-  contactType: "call" | "sms"
+  isOpen: boolean;
+  onClose: () => void;
+  contactType: "call" | "sms";
   pestInfo: {
-    pest: string
-    activityLevel: string
-    confidence: string
-  }
-  assessmentAnswers: any
+    pest: string;
+    activityLevel: string;
+    confidence: string;
+  };
+  assessmentAnswers: any;
 }
 
-export function ContactFormModal({ isOpen, onClose, contactType, pestInfo, assessmentAnswers }: ContactFormModalProps) {
+export function ContactFormModal({
+  isOpen,
+  onClose,
+  contactType,
+  pestInfo,
+  assessmentAnswers,
+}: ContactFormModalProps) {
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     email: "",
     phone: "",
     preferredTime: "",
     notes: "",
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (field: keyof ContactFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    if (error) setError(null) // Clear error when user starts typing
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (error) setError(null); // Clear error when user starts typing
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setError(null)
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
 
     const submissionData = {
       ...formData,
       pestInfo,
       assessmentAnswers,
-    }
+    };
 
     try {
-      const endpoint = contactType === "call" ? "/api/schedule-call" : "/api/send-sms"
+      const endpoint =
+        contactType === "call" ? "/api/schedule-call" : "/api/send-sms";
 
       const response = await fetch(endpoint, {
         method: "POST",
@@ -68,26 +80,29 @@ export function ContactFormModal({ isOpen, onClose, contactType, pestInfo, asses
           "Content-Type": "application/json",
         },
         body: JSON.stringify(submissionData),
-      })
+      });
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error || "Failed to process request")
+        throw new Error(result.error || "Failed to process request");
       }
 
-      console.log(`${contactType} integration successful:`, result)
-      trackLeadGenerated(contactType, pestInfo.pest, pestInfo.activityLevel, pestInfo.confidence)
-      setIsSubmitted(true)
+      console.log(`${contactType} integration successful:`, result);
+      setIsSubmitted(true);
     } catch (error) {
-      console.error(`${contactType} integration error:`, error)
-      setError(error instanceof Error ? error.message : "Something went wrong. Please try again.")
+      console.error(`${contactType} integration error:`, error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again."
+      );
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  const isFormValid = formData.name && formData.email && formData.phone
+  const isFormValid = formData.name && formData.email && formData.phone;
 
   if (isSubmitted) {
     return (
@@ -98,7 +113,9 @@ export function ContactFormModal({ isOpen, onClose, contactType, pestInfo, asses
               <CheckCircle className="w-8 h-8 text-primary" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-card-foreground">Thank You!</h3>
+              <h3 className="text-lg font-semibold text-card-foreground">
+                Thank You!
+              </h3>
               <p className="text-muted-foreground mt-2">
                 {contactType === "call"
                   ? "We've scheduled your consultation! Our team will call you within 24 hours to discuss your pest issue and treatment options."
@@ -111,7 +128,7 @@ export function ContactFormModal({ isOpen, onClose, contactType, pestInfo, asses
           </div>
         </DialogContent>
       </Dialog>
-    )
+    );
   }
 
   return (
@@ -119,12 +136,21 @@ export function ContactFormModal({ isOpen, onClose, contactType, pestInfo, asses
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {contactType === "call" ? <Phone className="w-5 h-5" /> : <MessageSquare className="w-5 h-5" />}
-            {contactType === "call" ? "Schedule Phone Consultation" : "SMS Reminder Setup"}
+            {contactType === "call" ? (
+              <Phone className="w-5 h-5" />
+            ) : (
+              <MessageSquare className="w-5 h-5" />
+            )}
+            {contactType === "call"
+              ? "Schedule Phone Consultation"
+              : "SMS Reminder Setup"}
           </DialogTitle>
           <DialogDescription>
             Please provide your contact information so we can
-            {contactType === "call" ? " schedule your consultation" : " send you an SMS reminder"}.
+            {contactType === "call"
+              ? " schedule your consultation"
+              : " send you an SMS reminder"}
+            .
           </DialogDescription>
         </DialogHeader>
 
@@ -177,7 +203,9 @@ export function ContactFormModal({ isOpen, onClose, contactType, pestInfo, asses
               <Input
                 id="preferredTime"
                 value={formData.preferredTime}
-                onChange={(e) => handleInputChange("preferredTime", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("preferredTime", e.target.value)
+                }
                 placeholder="e.g., Weekday mornings, After 6 PM"
               />
             </div>
@@ -196,7 +224,9 @@ export function ContactFormModal({ isOpen, onClose, contactType, pestInfo, asses
 
           {/* Assessment Summary */}
           <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-            <h4 className="font-medium text-sm text-card-foreground">Assessment Summary</h4>
+            <h4 className="font-medium text-sm text-card-foreground">
+              Assessment Summary
+            </h4>
             <div className="text-sm text-muted-foreground space-y-1">
               <p>
                 <strong>Identified Pest:</strong> {pestInfo.pest}
@@ -211,10 +241,19 @@ export function ContactFormModal({ isOpen, onClose, contactType, pestInfo, asses
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1 bg-transparent">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="flex-1 bg-transparent"
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={!isFormValid || isSubmitting} className="flex-1">
+            <Button
+              type="submit"
+              disabled={!isFormValid || isSubmitting}
+              className="flex-1"
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -230,5 +269,5 @@ export function ContactFormModal({ isOpen, onClose, contactType, pestInfo, asses
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
