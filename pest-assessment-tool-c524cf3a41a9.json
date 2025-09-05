@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "pest-assessment-tool",
+  "private_key_id": "c524cf3a41a92c0cb5d7f2c2060093aa7717c5b9",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDAa5HbovY4lKN9\nSI1dHTtm0ZfacNhPT9ka3hVgqpmKiRmYcnS0fIjYU3UOWom+isuFplcDChtp1hDS\nFLyKUMXSiSvoPDjtBJUyrg+9p/uXddMdLffwVcblkiGp9Zj8PFSdAtVjrND3nE27\neHb0sWWvLbPHH0GbN9vpHaRMtEuTJS2JmrNNQrh51+Ln6/LG54evYqy/0vUMEBRP\noPW1IqSk02v+E4a5JVT6ASrSlYxPFcRJdmd8tQlTthLIgOiOgaST9L/u6MUA2NRl\nncj3YKQ1jC8K5wIDVqN6Sp/MNJYr5xBN6jF4Llkr6kOrOMK8y2wuoCJdBmxnzU8f\nPqDKqQS/AgMBAAECggEAFwQm9RsykYUHY00s36DyAd6l591MpSawxPEgpH3zkhR2\nfnuJBdfJn0/9oKMSy+XFP24sr/KNtzoBrBIKlWQ2WB8hTzejkDJWowfFXpMRL0ZK\n4415QAMP9gDl9vL82DBikfS3T/i+zDIi7X7qLQ2/0yrye1R79VRCq/PoOxFBOE8/\ngDqhIVejIW0s4X0JnMAupQ5nsRTwKB+uSMQ7EsdxqrvrdIzx3JevXsIo5hB/15hf\nsiHh/LeAwALcWFoK6xV3WO3KIjn4ZV5v3/ap/tAHmU8nY+Q9gChDjcmSyQL6NfT6\n3LRu2JdM+68HrRpPAIr5IrQHzCVoMxsJslsgDIiqMQKBgQD6Do00X0LQrX8lfD8R\nVAEiAz1rZKdnCvGMLM8ub/RPB0gY0QxdiRdwFatCRkzj3u+ep6u7+hlDa+euBijI\ntV2k7tGwAKJQjxIYU+vf0mcEOxv2QPrZa4jJ0HNVA5sGRrT8pHd4gW1HX43XXktv\nGBXgqCq2Hws8+ZIjZQgRgyVf0QKBgQDE/lVKVPIwy1zGG3qedJaopKj9NTPinYyi\n441oAsSWwmZVz6fDXQmAxjhHQWfdRI/TLfNxdFqvKkqTIqhPJEEhZ4rSJOJpu5+l\nz75rZVGLbR6uztgLsJqB3Vuiw1E3FSJ2Re24wDaFkldAZnyalWvYIxtNOTkV2AI+\n/MGyKYdPjwKBgD9xubn0AYvYuU3VfFr1KWRr1gWNgDvQtwCNzfNGTIJQoqZJRA3n\nXp79oHosRA383mcuu4/yIL7OffXVcjuaaKwUO/ef8Y7m/fxWLp6XT7PvG2Ubj4ni\nks5BqUGErKym+/yt7fIRRJy7Tc27CwCg58wcXtnefod1+vIoDCgFUlJBAoGAR0rc\nRyhy9iHDE5dCSzJai/H7jpfAjVUDXrgHpwrJZt439vpN9rAnDkmueGs9UaDMhFru\n7bJ0V0xw7MrwKqQuRg6Y+PCMWEOkxXdnrKpgVptJLW6CVci2QiWAUmlpbQvjCvbH\nz8MQeEq79PyiP7ev7erWqJ37AOLJ/U2wM/A/nhUCgYEAsyiIa0kigbnPljpKgqO8\nChmBVlHjwFJIpvF30ME96rsz///KONXqUHzhqx0PzRwo1KxeqnfGtlTvoHKvyvIL\nqYTO9+6JcAa99FzJlzLzdNMFyBw584QobYjh3YOqgGBs+J0PF9jqfbyTJpC58GIm\n6Qkgnur8W+YkEoZgMBkBMIk=\n-----END PRIVATE KEY-----\n",
+  "client_email": "pest-assessment@pest-assessment-tool.iam.gserviceaccount.com",
+  "client_id": "101498909084973829919",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/pest-assessment%40pest-assessment-tool.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

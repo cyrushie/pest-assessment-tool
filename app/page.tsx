@@ -1,11 +1,24 @@
 "use client";
 
+import type React from "react";
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Bug, Home, Phone, MessageSquare } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  CheckCircle,
+  Bug,
+  Home,
+  Phone,
+  MessageSquare,
+  Upload,
+  X,
+} from "lucide-react";
 import { AIChatbot } from "@/components/ai-chatbot";
 import { ContactFormModal } from "@/components/contact-form-modal";
 
@@ -136,6 +149,11 @@ export default function PestAssessmentTool() {
   const [showResults, setShowResults] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
   const [contactType, setContactType] = useState<"call" | "sms">("call");
+  const [detailedDescription, setDetailedDescription] = useState("");
+  const [uploadedFiles, setUploadedFiles] = useState<
+    { url: string; filename: string; size: number; type: string }[]
+  >([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleAnswer = (questionId: number, value: string | string[]) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
@@ -169,6 +187,74 @@ export default function PestAssessmentTool() {
     return answer !== undefined;
   };
 
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = Array.from(event.target.files || []);
+
+    if (files.length === 0) return;
+
+    setIsUploading(true);
+
+    try {
+      const uploadPromises = files.map(async (file) => {
+        const maxSize = 20 * 1024 * 1024; // 20MB in bytes
+        const validTypes = ["image/", "video/"];
+
+        if (file.size > maxSize) {
+          alert(`File "${file.name}" is too large. Maximum size is 20MB.`);
+          return null;
+        }
+
+        if (!validTypes.some((type) => file.type.startsWith(type))) {
+          alert(`File "${file.name}" is not a valid image or video file.`);
+          return null;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || "Upload failed");
+        }
+
+        return await response.json();
+      });
+
+      const results = await Promise.all(uploadPromises);
+      const successfulUploads = results.filter((result) => result !== null);
+
+      setUploadedFiles((prev) => [...prev, ...successfulUploads]);
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Failed to upload files. Please try again.");
+    } finally {
+      setIsUploading(false);
+      // Reset the input
+      event.target.value = "";
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return (
+      Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+    );
+  };
+
   if (showResults) {
     return (
       <div className="min-h-screen bg-background">
@@ -176,6 +262,14 @@ export default function PestAssessmentTool() {
           answers={answers}
           setShowContactForm={setShowContactForm}
           setContactType={setContactType}
+          detailedDescription={detailedDescription}
+          setDetailedDescription={setDetailedDescription}
+          uploadedFiles={uploadedFiles}
+          setUploadedFiles={setUploadedFiles}
+          handleFileUpload={handleFileUpload}
+          formatFileSize={formatFileSize}
+          removeFile={removeFile}
+          isUploading={isUploading}
         />
         <AIChatbot currentQuestion={-1} answers={answers} />
         <ContactFormModal
@@ -184,6 +278,8 @@ export default function PestAssessmentTool() {
           contactType={contactType}
           pestInfo={identifyPest(answers)}
           assessmentAnswers={answers}
+          detailedDescription={detailedDescription}
+          uploadedFiles={uploadedFiles}
         />
       </div>
     );
@@ -205,7 +301,7 @@ export default function PestAssessmentTool() {
                 Pest Assessment Tool
               </h1>
               <p className="text-muted-foreground">
-                Professional pest identification and consultation.
+                Professional pest identification and consultation
               </p>
             </div>
           </div>
@@ -309,12 +405,32 @@ function ResultsPage({
   answers,
   setShowContactForm,
   setContactType,
+  detailedDescription,
+  setDetailedDescription,
+  uploadedFiles,
+  setUploadedFiles,
+  handleFileUpload,
+  formatFileSize,
+  removeFile,
+  isUploading,
 }: {
   answers: UserAnswers;
   setShowContactForm: any;
   setContactType: any;
+  detailedDescription: string;
+  setDetailedDescription: any;
+  uploadedFiles: {
+    url: string;
+    filename: string;
+    size: number;
+    type: string;
+  }[];
+  setUploadedFiles: any;
+  handleFileUpload: any;
+  formatFileSize: any;
+  removeFile: any;
+  isUploading: boolean;
 }) {
-  // Pest identification logic
   const pestResult = identifyPest(answers);
   const activityLevel = getActivityLevel(answers);
   const recommendation = getRecommendation(activityLevel);
@@ -404,6 +520,87 @@ function ResultsPage({
                 Confidence Level
               </p>
               <Badge variant="outline">{pestResult.confidence}</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Detailed Description Section */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Describe Your Situation</CardTitle>
+            <p className="text-muted-foreground">
+              Provide additional details about your pest situation to help our
+              experts better understand your needs
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="detailed-description">Additional Details</Label>
+              <Textarea
+                id="detailed-description"
+                placeholder="Describe any additional observations, concerns, or specific areas where you've noticed pest activity..."
+                value={detailedDescription}
+                onChange={(e) => setDetailedDescription(e.target.value)}
+                className="min-h-24 mt-2"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="file-upload">
+                Upload Images or Videos (Max 20MB each)
+              </Label>
+              <div className="mt-2">
+                <Input
+                  id="file-upload"
+                  type="file"
+                  multiple
+                  accept="image/*,video/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  disabled={isUploading}
+                />
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    document.getElementById("file-upload")?.click()
+                  }
+                  className="w-full justify-center"
+                  disabled={isUploading}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  {isUploading ? "Uploading..." : "Choose Files"}
+                </Button>
+              </div>
+
+              {uploadedFiles.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <p className="text-sm font-medium">Uploaded Files:</p>
+                  {uploadedFiles.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-2 bg-muted rounded-lg"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">
+                          {file.filename}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatFileSize(file.size)} •{" "}
+                          {file.type.startsWith("image/") ? "Image" : "Video"}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeFile(index)}
+                        className="ml-2 h-8 w-8 p-0"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

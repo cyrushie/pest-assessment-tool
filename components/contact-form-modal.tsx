@@ -34,6 +34,13 @@ interface ContactFormModalProps {
     confidence: string;
   };
   assessmentAnswers: any;
+  detailedDescription?: string;
+  uploadedFiles?: Array<{
+    url: string;
+    filename: string;
+    size: number;
+    type: string;
+  }>;
 }
 
 export function ContactFormModal({
@@ -42,6 +49,8 @@ export function ContactFormModal({
   contactType,
   pestInfo,
   assessmentAnswers,
+  detailedDescription = "",
+  uploadedFiles = [],
 }: ContactFormModalProps) {
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
@@ -68,11 +77,33 @@ export function ContactFormModal({
       ...formData,
       pestInfo,
       assessmentAnswers,
+      contactType,
+      detailedDescription,
+      uploadedFilesInfo: uploadedFiles.map((file) => ({
+        url: file.url,
+        filename: file.filename,
+        size: file.size,
+        type: file.type,
+      })),
     };
 
     try {
       const endpoint =
         contactType === "call" ? "/api/schedule-call" : "/api/send-sms";
+
+      const sheetsResponse = await fetch("/api/save-to-sheets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(submissionData),
+      });
+
+      if (!sheetsResponse.ok) {
+        console.warn(
+          "Failed to save to Google Sheets, but continuing with main flow"
+        );
+      }
 
       const response = await fetch(endpoint, {
         method: "POST",
@@ -237,6 +268,19 @@ export function ContactFormModal({
               <p>
                 <strong>Confidence:</strong> {pestInfo.confidence}
               </p>
+              {detailedDescription && (
+                <p>
+                  <strong>Additional Details:</strong>{" "}
+                  {detailedDescription.substring(0, 100)}
+                  {detailedDescription.length > 100 ? "..." : ""}
+                </p>
+              )}
+              {uploadedFiles.length > 0 && (
+                <p>
+                  <strong>Uploaded Files:</strong> {uploadedFiles.length} file
+                  {uploadedFiles.length > 1 ? "s" : ""} attached
+                </p>
+              )}
             </div>
           </div>
 
