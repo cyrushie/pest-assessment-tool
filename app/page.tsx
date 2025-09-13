@@ -15,9 +15,9 @@ import {
   Bug,
   Home,
   Phone,
-  MessageSquare,
   Upload,
   X,
+  AlertTriangle,
 } from "lucide-react";
 import { AIChatbot } from "@/components/ai-chatbot";
 import { ContactFormModal } from "@/components/contact-form-modal";
@@ -129,17 +129,13 @@ function identifyPest(answers: UserAnswers) {
 
 function getActivityLevel(answers: UserAnswers) {
   const frequency = (answers[5] as string) || "";
-  if (frequency === "frequently") return "High";
-  if (frequency === "occasionally") return "Moderate";
-  return "Low";
+  if (frequency === "frequently") return "Severe";
+  if (frequency === "occasionally") return "High";
+  return "Moderate";
 }
 
-function handleContactClick(
-  type: "call" | "sms",
-  setShowContactForm: any,
-  setContactType: any
-) {
-  setContactType(type);
+function handleContactClick(setShowContactForm: any, setContactType: any) {
+  setContactType("call");
   setShowContactForm(true);
 }
 
@@ -148,7 +144,7 @@ export default function PestAssessmentTool() {
   const [answers, setAnswers] = useState<UserAnswers>({});
   const [showResults, setShowResults] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
-  const [contactType, setContactType] = useState<"call" | "sms">("call");
+  const [contactType, setContactType] = useState<"call">("call");
   const [detailedDescription, setDetailedDescription] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState<
     { url: string; filename: string; size: number; type: string }[]
@@ -435,24 +431,64 @@ function ResultsPage({
   const activityLevel = getActivityLevel(answers);
   const recommendation = getRecommendation(activityLevel);
 
+  const getThemeColors = (level: string) => {
+    switch (level) {
+      case "Severe":
+        return {
+          primary: "bg-red-600 hover:bg-red-700",
+          primaryText: "text-white",
+          accent: "bg-red-50 border-red-200",
+          accentText: "text-red-800",
+          badge: "bg-red-100 text-red-800 border-red-300",
+          headerBg: "bg-gradient-to-r from-red-600 to-red-700",
+          pulse: "animate-pulse",
+          glow: "shadow-lg shadow-red-500/25",
+        };
+      case "High":
+        return {
+          primary: "bg-orange-600 hover:bg-orange-700",
+          primaryText: "text-white",
+          accent: "bg-orange-50 border-orange-200",
+          accentText: "text-orange-800",
+          badge: "bg-orange-100 text-orange-800 border-orange-300",
+          headerBg: "bg-gradient-to-r from-orange-600 to-orange-700",
+          pulse: "",
+          glow: "shadow-md shadow-orange-500/20",
+        };
+      default: // Moderate
+        return {
+          primary: "bg-yellow-600 hover:bg-yellow-700",
+          primaryText: "text-white",
+          accent: "bg-yellow-50 border-yellow-200",
+          accentText: "text-yellow-800",
+          badge: "bg-yellow-100 text-yellow-800 border-yellow-300",
+          headerBg: "bg-gradient-to-r from-yellow-600 to-yellow-700",
+          pulse: "",
+          glow: "shadow-sm shadow-yellow-500/15",
+        };
+    }
+  };
+
+  const themeColors = getThemeColors(activityLevel);
+
   function getRecommendation(activityLevel: string) {
     switch (activityLevel) {
+      case "Severe":
+        return {
+          message:
+            "🚨 URGENT: You have a severe pest infestation that requires immediate professional intervention. Delaying treatment could lead to significant property damage and health risks.",
+          action: "immediate",
+        };
       case "High":
         return {
           message:
-            "It looks like you may have a significant pest issue. We recommend scheduling a consultation for a professional inspection and treatment.",
-          action: "immediate",
-        };
-      case "Moderate":
-        return {
-          message:
-            "There's a possibility that your pest problem is manageable with preventive steps. But, we still recommend a consultation to ensure it doesn't escalate.",
+            "⚠️ WARNING: Your pest problem is escalating and needs prompt attention. Professional treatment is strongly recommended to prevent further spread.",
           action: "recommended",
         };
-      default:
+      default: // Moderate
         return {
           message:
-            "Your pest activity appears to be minor. However, we recommend keeping an eye out. If things change, it's a good idea to schedule a consultation.",
+            "⚡ CAUTION: Early signs of pest activity detected. Acting now can prevent a minor issue from becoming a major infestation.",
           action: "optional",
         };
     }
@@ -460,28 +496,46 @@ function ResultsPage({
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card">
+      <header className={`border-b border-border ${themeColors.headerBg}`}>
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 bg-primary rounded-lg">
-              <Bug className="w-6 h-6 text-primary-foreground" />
+            <div
+              className={`flex items-center justify-center w-10 h-10 bg-white/20 rounded-lg ${themeColors.pulse}`}
+            >
+              <Bug className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-card-foreground">
+              <h1 className="text-2xl font-bold text-white">
                 Assessment Results
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-white/90">
                 Your personalized pest identification and recommendations
               </p>
             </div>
+            {activityLevel === "Severe" && (
+              <div className="ml-auto">
+                <div className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full animate-pulse">
+                  <AlertTriangle className="w-4 h-4 text-white" />
+                  <span className="text-sm font-medium text-white">URGENT</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </header>
 
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        {/* Results Summary */}
-        <Card className="mb-6">
+        <Card
+          className={`mb-6 ${themeColors.glow} border-2`}
+          style={{
+            borderColor:
+              activityLevel === "Severe"
+                ? "#dc2626"
+                : activityLevel === "High"
+                ? "#ea580c"
+                : "#d97706",
+          }}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Home className="w-5 h-5" />
@@ -503,13 +557,9 @@ function ResultsPage({
                   Activity Level
                 </p>
                 <Badge
-                  variant={
-                    activityLevel === "High"
-                      ? "destructive"
-                      : activityLevel === "Moderate"
-                      ? "default"
-                      : "secondary"
-                  }
+                  className={`${themeColors.badge} font-bold ${
+                    activityLevel === "Severe" ? "animate-pulse" : ""
+                  }`}
                 >
                   {activityLevel}
                 </Badge>
@@ -605,59 +655,112 @@ function ResultsPage({
           </CardContent>
         </Card>
 
-        {/* Recommendation */}
-        <Card className="mb-6">
+        <Card
+          className={`mb-6 ${themeColors.accent} border-2`}
+          style={{
+            borderColor:
+              activityLevel === "Severe"
+                ? "#dc2626"
+                : activityLevel === "High"
+                ? "#ea580c"
+                : "#d97706",
+          }}
+        >
           <CardHeader>
-            <CardTitle>Our Recommendation</CardTitle>
+            <CardTitle className={themeColors.accentText}>
+              Our Professional Recommendation
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-card-foreground mb-4">
+            <p className={`${themeColors.accentText} mb-4 font-medium text-lg`}>
               {recommendation.message}
             </p>
 
             {recommendation.action === "immediate" && (
-              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-4">
-                <p className="text-sm font-medium text-destructive">
-                  Immediate Action Recommended
+              <div className="bg-red-100 border-2 border-red-300 rounded-lg p-4 mb-4 animate-pulse">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                  <p className="text-lg font-bold text-red-600">
+                    IMMEDIATE ACTION REQUIRED
+                  </p>
+                </div>
+                <p className="text-red-700 font-medium">
+                  🔥 Severe pest activity detected. Every hour of delay
+                  increases damage and treatment costs. Professional
+                  intervention needed NOW!
                 </p>
-                <p className="text-sm text-destructive/80">
-                  High pest activity detected. Professional treatment advised.
+              </div>
+            )}
+
+            {recommendation.action === "recommended" && (
+              <div className="bg-orange-100 border-2 border-orange-300 rounded-lg p-4 mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="w-5 h-5 text-orange-600" />
+                  <p className="text-lg font-bold text-orange-600">
+                    PROMPT ACTION RECOMMENDED
+                  </p>
+                </div>
+                <p className="text-orange-700 font-medium">
+                  ⚠️ Your pest problem is escalating. Don't let it become a
+                  costly emergency - act now!
                 </p>
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Contact Options */}
-        <Card>
+        <Card
+          className={`${themeColors.glow} border-2`}
+          style={{
+            borderColor:
+              activityLevel === "Severe"
+                ? "#dc2626"
+                : activityLevel === "High"
+                ? "#ea580c"
+                : "#d97706",
+          }}
+        >
           <CardHeader>
-            <CardTitle>Schedule Your Consultation</CardTitle>
-            <p className="text-muted-foreground">
-              Choose how you'd like to connect with our pest control experts
+            <CardTitle className="text-xl">
+              🎯 Get Your FREE Professional Consultation
+            </CardTitle>
+            <p className="text-muted-foreground font-medium">
+              {activityLevel === "Severe"
+                ? "Emergency consultation available - Don't wait, call now!"
+                : activityLevel === "High"
+                ? "Priority scheduling available - Secure your spot today!"
+                : "Expert advice to prevent escalation - Schedule now!"}
             </p>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent>
             <Button
-              className="w-full justify-start"
+              className={`w-full justify-center text-lg py-6 ${
+                themeColors.primary
+              } ${themeColors.primaryText} ${
+                activityLevel === "Severe" ? "animate-pulse" : ""
+              } ${themeColors.glow}`}
               size="lg"
               onClick={() =>
-                handleContactClick("call", setShowContactForm, setContactType)
+                handleContactClick(setShowContactForm, setContactType)
               }
             >
-              <Phone className="w-5 h-5 mr-3" />
-              Schedule a Phone Call
+              <Phone className="w-6 h-6 mr-3" />
+              {activityLevel === "Severe"
+                ? "🚨 EMERGENCY CONSULTATION - CALL NOW"
+                : activityLevel === "High"
+                ? "⚡ PRIORITY CONSULTATION - SCHEDULE TODAY"
+                : "📞 FREE CONSULTATION - BOOK NOW"}
             </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start bg-transparent"
-              size="lg"
-              onClick={() =>
-                handleContactClick("sms", setShowContactForm, setContactType)
-              }
-            >
-              <MessageSquare className="w-5 h-5 mr-3" />
-              Send SMS Reminder
-            </Button>
+
+            <div className="mt-4 text-center">
+              <p className="text-sm text-muted-foreground">
+                {activityLevel === "Severe"
+                  ? "⏰ Same-day service available • 24/7 emergency response"
+                  : activityLevel === "High"
+                  ? "⏰ Next-day service available • Limited slots remaining"
+                  : "⏰ Flexible scheduling • Prevention is key"}
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>

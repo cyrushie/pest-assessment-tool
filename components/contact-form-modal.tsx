@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Phone, MessageSquare, CheckCircle, Loader2 } from "lucide-react";
+import { Phone, CheckCircle, Loader2 } from "lucide-react";
 
 interface ContactFormData {
   name: string;
@@ -27,7 +27,7 @@ interface ContactFormData {
 interface ContactFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  contactType: "call" | "sms";
+  contactType: "call";
   pestInfo: {
     pest: string;
     activityLevel: string;
@@ -88,8 +88,7 @@ export function ContactFormModal({
     };
 
     try {
-      const endpoint =
-        contactType === "call" ? "/api/schedule-call" : "/api/send-sms";
+      const endpoint = "/api/schedule-call";
 
       const sheetsResponse = await fetch("/api/save-to-sheets", {
         method: "POST",
@@ -148,9 +147,8 @@ export function ContactFormModal({
                 Thank You!
               </h3>
               <p className="text-muted-foreground mt-2">
-                {contactType === "call"
-                  ? "We've scheduled your consultation! Our team will call you within 24 hours to discuss your pest issue and treatment options."
-                  : "SMS sent successfully! You'll receive a text message shortly with next steps and our contact information."}
+                We've scheduled your consultation! Our team will call you within
+                24 hours to discuss your pest issue and treatment options.
               </p>
             </div>
             <Button onClick={onClose} className="w-full">
@@ -167,21 +165,12 @@ export function ContactFormModal({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {contactType === "call" ? (
-              <Phone className="w-5 h-5" />
-            ) : (
-              <MessageSquare className="w-5 h-5" />
-            )}
-            {contactType === "call"
-              ? "Schedule Phone Consultation"
-              : "SMS Reminder Setup"}
+            <Phone className="w-5 h-5" />
+            Schedule Phone Consultation
           </DialogTitle>
           <DialogDescription>
-            Please provide your contact information so we can
-            {contactType === "call"
-              ? " schedule your consultation"
-              : " send you an SMS reminder"}
-            .
+            Please provide your contact information so we can schedule your
+            consultation.
           </DialogDescription>
         </DialogHeader>
 
@@ -228,19 +217,17 @@ export function ContactFormModal({
             />
           </div>
 
-          {contactType === "call" && (
-            <div className="space-y-2">
-              <Label htmlFor="preferredTime">Preferred Call Time</Label>
-              <Input
-                id="preferredTime"
-                value={formData.preferredTime}
-                onChange={(e) =>
-                  handleInputChange("preferredTime", e.target.value)
-                }
-                placeholder="e.g., Weekday mornings, After 6 PM"
-              />
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label htmlFor="preferredTime">Preferred Call Time</Label>
+            <Input
+              id="preferredTime"
+              value={formData.preferredTime}
+              onChange={(e) =>
+                handleInputChange("preferredTime", e.target.value)
+              }
+              placeholder="e.g., Weekday mornings, After 6 PM"
+            />
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="notes">Additional Notes</Label>
@@ -301,12 +288,10 @@ export function ContactFormModal({
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {contactType === "call" ? "Scheduling..." : "Sending SMS..."}
+                  Scheduling...
                 </>
-              ) : contactType === "call" ? (
-                "Schedule Call"
               ) : (
-                "Send SMS"
+                "Schedule Call"
               )}
             </Button>
           </div>

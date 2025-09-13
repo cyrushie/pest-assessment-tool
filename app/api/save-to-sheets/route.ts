@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
           "Confidence",
           "Assessment Answers",
           "Uploaded Files",
+          "Detailed Description",
         ],
       });
     }
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
       Confidence: data.pestInfo?.confidence || "",
       "Assessment Answers": JSON.stringify(data.assessmentAnswers || {}),
       "Uploaded Files": JSON.stringify(data.uploadedFilesInfo || {}),
+      "Detailed Description": data.detailedDescription || "",
     };
 
     // Add the row to the sheet

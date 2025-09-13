@@ -130,7 +130,7 @@ export function AIChatbot({
       lowerMessage.includes("consultation") ||
       lowerMessage.includes("call")
     ) {
-      return "Great! I'd be happy to help you schedule a consultation. Once you complete the assessment, you'll see options to schedule a call or receive an SMS reminder. Would you like me to guide you through the remaining questions?";
+      return "Great! I'd be happy to help you schedule a consultation. Once you complete the assessment, you'll see an option to schedule a call. Would you like me to guide you through the remaining questions?";
     }
 
     if (lowerMessage.includes("cockroach") || lowerMessage.includes("roach")) {
