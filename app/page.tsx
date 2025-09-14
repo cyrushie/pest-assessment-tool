@@ -525,7 +525,7 @@ function ResultsPage({
       </header>
 
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <Card
+        {/* <Card
           className={`mb-6 ${themeColors.glow} border-2`}
           style={{
             borderColor:
@@ -571,6 +571,60 @@ function ResultsPage({
               </p>
               <Badge variant="outline">{pestResult.confidence}</Badge>
             </div>
+          </CardContent>
+          </Card> */}
+
+        <Card
+          className={`mb-6 ${themeColors.accent} border-2`}
+          style={{
+            borderColor:
+              activityLevel === "Severe"
+                ? "#dc2626"
+                : activityLevel === "High"
+                ? "#ea580c"
+                : "#d97706",
+          }}
+        >
+          <CardHeader>
+            <CardTitle className={themeColors.accentText}>
+              Our Professional Recommendation
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className={`${themeColors.accentText} mb-4 font-medium text-lg`}>
+              {recommendation.message}
+            </p>
+
+            {recommendation.action === "immediate" && (
+              <div className="bg-red-100 border-2 border-red-300 rounded-lg p-4 mb-4 animate-pulse">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                  <p className="text-lg font-bold text-red-600">
+                    IMMEDIATE ACTION REQUIRED
+                  </p>
+                </div>
+                <p className="text-red-700 font-medium">
+                  🔥 Severe pest activity detected. Every hour of delay
+                  increases damage and treatment costs. Professional
+                  intervention needed NOW!
+                </p>
+              </div>
+            )}
+
+            {recommendation.action === "recommended" && (
+              <div className="bg-orange-100 border-2 border-orange-300 rounded-lg p-4 mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="w-5 h-5 text-orange-600" />
+                  <p className="text-lg font-bold text-orange-600">
+                    PROMPT ACTION RECOMMENDED
+                  </p>
+                </div>
+                <p className="text-orange-700 font-medium">
+                  ⚠️ Your pest problem is escalating. Don't let it become a
+                  costly emergency - act now!
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -652,60 +706,6 @@ function ResultsPage({
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
-
-        <Card
-          className={`mb-6 ${themeColors.accent} border-2`}
-          style={{
-            borderColor:
-              activityLevel === "Severe"
-                ? "#dc2626"
-                : activityLevel === "High"
-                ? "#ea580c"
-                : "#d97706",
-          }}
-        >
-          <CardHeader>
-            <CardTitle className={themeColors.accentText}>
-              Our Professional Recommendation
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className={`${themeColors.accentText} mb-4 font-medium text-lg`}>
-              {recommendation.message}
-            </p>
-
-            {recommendation.action === "immediate" && (
-              <div className="bg-red-100 border-2 border-red-300 rounded-lg p-4 mb-4 animate-pulse">
-                <div className="flex items-center gap-2 mb-2">
-                  <AlertTriangle className="w-5 h-5 text-red-600" />
-                  <p className="text-lg font-bold text-red-600">
-                    IMMEDIATE ACTION REQUIRED
-                  </p>
-                </div>
-                <p className="text-red-700 font-medium">
-                  🔥 Severe pest activity detected. Every hour of delay
-                  increases damage and treatment costs. Professional
-                  intervention needed NOW!
-                </p>
-              </div>
-            )}
-
-            {recommendation.action === "recommended" && (
-              <div className="bg-orange-100 border-2 border-orange-300 rounded-lg p-4 mb-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <AlertTriangle className="w-5 h-5 text-orange-600" />
-                  <p className="text-lg font-bold text-orange-600">
-                    PROMPT ACTION RECOMMENDED
-                  </p>
-                </div>
-                <p className="text-orange-700 font-medium">
-                  ⚠️ Your pest problem is escalating. Don't let it become a
-                  costly emergency - act now!
-                </p>
-              </div>
-            )}
           </CardContent>
         </Card>
 
