@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Bug, Shield, Clock, CheckCircle } from "lucide-react";
+import { Bug, Shield, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function HomePage() {
@@ -16,13 +16,39 @@ export default function HomePage() {
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [emailError, setEmailError] = useState("");
   const router = useRouter();
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const emailValue = e.target.value;
+    setEmail(emailValue);
+
+    if (emailValue && !validateEmail(emailValue)) {
+      setEmailError(
+        "Please enter a valid email address (e.g., user@example.com)"
+      );
+    } else {
+      setEmailError("");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name.trim() || !email.trim()) {
       alert("Please fill in your name and email address.");
+      return;
+    }
+
+    if (!validateEmail(email.trim())) {
+      alert(
+        "Please enter a valid email address with a complete domain (e.g., user@example.com)"
+      );
       return;
     }
 
@@ -185,10 +211,13 @@ export default function HomePage() {
                       type="email"
                       placeholder="Enter your email address"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={handleEmailChange}
                       required
-                      className="mt-1"
+                      className={`mt-1 ${emailError ? "border-red-500" : ""}`}
                     />
+                    {emailError && (
+                      <p className="text-red-500 text-sm mt-1">{emailError}</p>
+                    )}
                   </div>
 
                   <div className="flex items-start space-x-3 pt-2 p-4 bg-gray-50 rounded-lg border">
@@ -213,7 +242,12 @@ export default function HomePage() {
                     type="submit"
                     className="w-full text-lg py-6"
                     size="lg"
-                    disabled={isSubmitting || !name.trim() || !email.trim()}
+                    disabled={
+                      isSubmitting ||
+                      !name.trim() ||
+                      !email.trim() ||
+                      !!emailError
+                    }
                   >
                     {isSubmitting
                       ? "Processing..."
