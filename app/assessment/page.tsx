@@ -34,106 +34,725 @@ interface UserAnswers {
   [key: number]: string | string[];
 }
 
-const questions: Question[] = [
-  {
-    id: 1,
-    question:
-      "Have you noticed pests or signs of pests in or around your home/business?",
-    options: [
-      { value: "seen_them", label: "Yes, I've seen them" },
-      {
-        value: "seen_signs",
-        label: "Yes, I've seen signs (droppings, damage, etc.)",
-      },
-      { value: "no_signs", label: "No, I haven't seen anything" },
-    ],
-  },
+const pestTypes = [
+  "Ants (Carpenter, Argentine, Odorous, etc.)",
+  "Spiders",
+  "Earwigs",
+  "Silverfish",
+  "Beetles (Carpet, Weevils, etc.)",
+  "Cockroaches (German, Oriental, American, Turkish)",
+  "Stored Food Pests (e.g., Indian Meal Moths)",
+  "Rodents (Rats, Mice)",
+  "Gophers",
+  "Moles",
+  "Bees",
+  "Wasps",
+  "Yellow Jackets",
+];
+
+const pestSpecificQuestions: { [key: string]: Question[] } = {
+  "Ants (Carpenter, Argentine, Odorous, etc.)": [
+    {
+      id: 2,
+      question:
+        "Have you observed ants crawling along visible trails (e.g., walls, floors, counters)?",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" },
+      ],
+    },
+    {
+      id: 3,
+      question: "Where have you seen ants most frequently?",
+      options: [
+        { value: "kitchen", label: "Kitchen" },
+        { value: "bathroom", label: "Bathroom" },
+        { value: "bedroom", label: "Bedroom" },
+        { value: "living", label: "Living areas" },
+      ],
+    },
+    {
+      id: 4,
+      question:
+        "Are you seeing large numbers of ants, or just a few at a time?",
+      options: [
+        { value: "hundreds", label: "Large numbers (hundreds)" },
+        { value: "few", label: "A few ants at a time" },
+        { value: "occasional", label: "Only occasional sightings" },
+      ],
+    },
+    {
+      id: 5,
+      question:
+        "Have you noticed any damage to wood or structures in your home?",
+      options: [
+        { value: "yes_damage", label: "Yes, visible holes or damage to wood" },
+        { value: "no_damage", label: "No, I haven't seen damage" },
+      ],
+    },
+    {
+      id: 6,
+      question: "Have you noticed any nests or piles of sawdust?",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" },
+      ],
+    },
+  ],
+  Spiders: [
+    {
+      id: 2,
+      question:
+        "Have you noticed spider webs in corners or hidden areas of your home?",
+      options: [
+        { value: "often", label: "Yes, often" },
+        { value: "occasionally", label: "Occasionally" },
+        { value: "no_webs", label: "No webs found" },
+      ],
+    },
+    {
+      id: 3,
+      question: "How many spiders have you observed?",
+      options: [
+        { value: "several_large", label: "Several large spiders" },
+        { value: "few_small", label: "A few small spiders" },
+        { value: "one_two", label: "Only one or two spiders" },
+      ],
+    },
+    {
+      id: 4,
+      question: "What areas have you seen spiders the most?",
+      options: [
+        { value: "attic_basement", label: "Attic / Basement" },
+        {
+          value: "living_areas",
+          label: "Living areas (e.g., corners, behind furniture)",
+        },
+        { value: "outside", label: "Outside, near doors/windows" },
+      ],
+    },
+    {
+      id: 5,
+      question: "Are you seeing egg sacs or spiderlings (small spider babies)?",
+      options: [
+        { value: "yes_sacs", label: "Yes, I've seen sacs or babies" },
+        {
+          value: "no_sacs",
+          label: "No, I haven't seen egg sacs or spiderlings",
+        },
+      ],
+    },
+  ],
+  "Cockroaches (German, Oriental, American, Turkish)": [
+    {
+      id: 2,
+      question: "How often are you seeing cockroaches?",
+      options: [
+        { value: "daily", label: "Daily or multiple times per day" },
+        { value: "occasionally", label: "Occasionally" },
+        { value: "rarely", label: "Rarely" },
+      ],
+    },
+    {
+      id: 3,
+      question: "Have you noticed any cockroach droppings or egg cases?",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" },
+      ],
+    },
+    {
+      id: 4,
+      question: "Where have you observed the cockroaches?",
+      options: [
+        { value: "kitchen", label: "Kitchen (food, counters, cabinets)" },
+        { value: "bathroom", label: "Bathroom" },
+        { value: "appliances", label: "Behind appliances, under sinks" },
+        { value: "living", label: "Living areas (e.g., bedrooms)" },
+      ],
+    },
+    {
+      id: 5,
+      question:
+        "Have you noticed any musty odors in areas where roaches are active?",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" },
+      ],
+    },
+  ],
+  "Rodents (Rats, Mice)": [
+    {
+      id: 2,
+      question:
+        "How often are you hearing scurrying or scratching noises, especially at night?",
+      options: [
+        { value: "every_night", label: "Every night or often" },
+        { value: "occasionally", label: "Occasionally" },
+        { value: "never", label: "Never heard anything" },
+      ],
+    },
+    {
+      id: 3,
+      question:
+        "Have you observed rodent droppings or gnaw marks around your home?",
+      options: [
+        { value: "multiple_places", label: "Yes, in multiple places" },
+        { value: "one_area", label: "Only in one area" },
+        { value: "no_signs", label: "No visible signs" },
+      ],
+    },
+    {
+      id: 4,
+      question: "Where have you seen rodents the most?",
+      options: [
+        { value: "kitchen", label: "Kitchen or pantry" },
+        { value: "attic_basement", label: "Attic, basement, or crawl space" },
+        {
+          value: "living",
+          label: "Living areas (under furniture, behind walls)",
+        },
+      ],
+    },
+    {
+      id: 5,
+      question: "Have you noticed any nests or burrows?",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" },
+      ],
+    },
+  ],
+};
+
+pestSpecificQuestions["Earwigs"] = [
   {
     id: 2,
     question:
-      "Where have you noticed the pest activity? (Select all that apply)",
+      "Have you noticed earwigs in damp, dark areas (e.g., bathrooms, kitchens, basements)?",
     options: [
-      { value: "kitchen", label: "Kitchen" },
-      { value: "attic", label: "Attic/Crawl Space" },
-      { value: "bedroom", label: "Bedroom/Furniture" },
-      { value: "basement", label: "Basement/Storage" },
-      { value: "outdoors", label: "Outdoors (yard, garden, etc.)" },
-      { value: "other", label: "Other (please specify)" },
+      { value: "often", label: "Yes, often" },
+      { value: "occasionally", label: "Occasionally" },
+      { value: "no", label: "No" },
     ],
-    multiple: true,
   },
   {
     id: 3,
-    question: "What kind of behavior have you observed?",
+    question:
+      "Have you found earwigs in or around potted plants or under debris?",
     options: [
-      {
-        value: "scurrying",
-        label: "Fast scurrying or crawling (especially at night)",
-      },
-      { value: "flying", label: "Flying around food or trash" },
-      {
-        value: "crawling_furniture",
-        label: "Crawling around furniture or beds",
-      },
-      { value: "no_behavior", label: "No behavior observed" },
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
     ],
   },
   {
     id: 4,
-    question: "Have you noticed any of these signs? (Select all that apply)",
+    question: "How many earwigs are you seeing at a time?",
     options: [
-      { value: "droppings", label: "Droppings (small, black pellets)" },
-      {
-        value: "damage",
-        label: "Chewed or damaged food packaging, furniture, or wires",
-      },
-      { value: "nests", label: "Visible nests or webs" },
-      { value: "bites", label: "Bite marks or skin rashes" },
-      { value: "odors", label: "Musty or strong odors" },
-    ],
-    multiple: true,
-  },
-  {
-    id: 5,
-    question: "How often are you seeing or hearing signs of pests?",
-    options: [
-      { value: "rarely", label: "Rarely (once or twice a month)" },
-      { value: "occasionally", label: "Occasionally (once or twice a week)" },
-      { value: "frequently", label: "Frequently (every day or night)" },
+      { value: "several", label: "Several" },
+      { value: "one_two", label: "One or two" },
+      { value: "none", label: "No visible pests" },
     ],
   },
 ];
 
-function identifyPest(answers: UserAnswers) {
-  const locations = (answers[2] as string[]) || [];
-  const behaviors = (answers[3] as string) || "";
-  const signs = (answers[4] as string[]) || [];
-  const frequency = (answers[5] as string) || "";
+pestSpecificQuestions["Silverfish"] = [
+  {
+    id: 2,
+    question:
+      "Are you noticing silverfish in bathrooms, kitchens, or basements?",
+    options: [
+      { value: "often", label: "Yes, often" },
+      { value: "occasionally", label: "Occasionally" },
+      { value: "no", label: "No" },
+    ],
+  },
+  {
+    id: 3,
+    question: "Have you noticed damage to books, wallpaper, or fabrics?",
+    options: [
+      { value: "yes_damage", label: "Yes, I've seen holes or damage" },
+      { value: "no_damage", label: "No damage" },
+    ],
+  },
+  {
+    id: 4,
+    question: "How often are you seeing silverfish?",
+    options: [
+      { value: "daily", label: "Daily or multiple times per week" },
+      { value: "occasionally", label: "Occasionally (once a week or less)" },
+      { value: "rarely", label: "Rarely or never" },
+    ],
+  },
+];
 
-  const activityLevel = getActivityLevel(answers);
+pestSpecificQuestions["Beetles (Carpet, Weevils, etc.)"] = [
+  {
+    id: 2,
+    question: "Have you noticed beetles in carpets, fabrics, or stored food?",
+    options: [
+      { value: "carpets", label: "Yes, in carpets/fabrics" },
+      { value: "food", label: "Yes, in stored food" },
+      { value: "both", label: "Both areas" },
+      { value: "no", label: "No" },
+    ],
+  },
+  {
+    id: 3,
+    question: "Have you seen larvae or damage to materials?",
+    options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+    ],
+  },
+  {
+    id: 4,
+    question: "How frequently are you seeing beetles?",
+    options: [
+      { value: "daily", label: "Daily" },
+      { value: "weekly", label: "Weekly" },
+      { value: "rarely", label: "Rarely" },
+    ],
+  },
+];
 
-  // Simple pest identification logic
-  if (signs.includes("bites") && locations.includes("bedroom")) {
-    return { pest: "Bed Bugs", activityLevel, confidence: "High" };
-  }
-  if (signs.includes("droppings") && behaviors === "scurrying") {
-    return { pest: "Rodents (Mice/Rats)", activityLevel, confidence: "High" };
-  }
-  if (signs.includes("odors") && locations.includes("kitchen")) {
-    return { pest: "Cockroaches", activityLevel, confidence: "Medium" };
-  }
-  if (behaviors === "flying" && locations.includes("kitchen")) {
-    return { pest: "Fruit Flies/Gnats", activityLevel, confidence: "Medium" };
-  }
-  return { pest: "General Pest Activity", activityLevel, confidence: "Low" };
-}
+pestSpecificQuestions["Stored Food Pests (e.g., Indian Meal Moths)"] = [
+  {
+    id: 2,
+    question:
+      "Have you noticed moths or larvae in dry food items (e.g., flour, grains, cereal)?",
+    options: [
+      { value: "yes_in_food", label: "Yes, I've seen them in food" },
+      { value: "no", label: "No" },
+    ],
+  },
+  {
+    id: 3,
+    question: "Are you noticing any webbing or damage to food packaging?",
+    options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+    ],
+  },
+  {
+    id: 4,
+    question: "Have you thrown away any infested food recently?",
+    options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+    ],
+  },
+];
 
-function getActivityLevel(answers: UserAnswers) {
-  const frequency = (answers[5] as string) || "";
-  if (frequency === "frequently") return "Severe";
-  if (frequency === "occasionally") return "High";
+pestSpecificQuestions["Gophers"] = [
+  {
+    id: 2,
+    question:
+      "Have you noticed mounds or tunnels in your yard, garden, or lawn?",
+    options: [
+      { value: "multiple", label: "Yes, multiple mounds" },
+      { value: "one_two", label: "Only one or two" },
+      { value: "no_mounds", label: "No mounds" },
+    ],
+  },
+  {
+    id: 3,
+    question:
+      "Do you notice damage to plants, roots, or underground structures?",
+    options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+    ],
+  },
+  {
+    id: 4,
+    question: "Have you seen burrowing activity or noticed gophers?",
+    options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+    ],
+  },
+];
+
+pestSpecificQuestions["Moles"] = [
+  {
+    id: 2,
+    question: "Have you noticed raised tunnels or mounds in your lawn?",
+    options: [
+      { value: "multiple", label: "Yes, multiple tunnels/mounds" },
+      { value: "few", label: "Only a few" },
+      { value: "none", label: "No tunnels or mounds" },
+    ],
+  },
+  {
+    id: 3,
+    question: "Is there damage to your lawn or garden from tunneling?",
+    options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+    ],
+  },
+  {
+    id: 4,
+    question: "Have you actually seen moles or just the damage?",
+    options: [
+      { value: "seen_moles", label: "I've seen moles" },
+      { value: "just_damage", label: "Just the damage" },
+    ],
+  },
+];
+
+pestSpecificQuestions["Bees"] = [
+  {
+    id: 2,
+    question: "Have you noticed bee hives or nests near your home or property?",
+    options: [
+      { value: "yes_near", label: "Yes, near windows, roof, or eaves" },
+      { value: "no_nests", label: "No, I haven't seen any nests" },
+    ],
+  },
+  {
+    id: 3,
+    question: "Are you seeing bees flying around frequently?",
+    options: [
+      { value: "frequently", label: "Yes, frequently" },
+      { value: "occasionally", label: "Occasionally" },
+      { value: "no", label: "No, not seen any" },
+    ],
+  },
+  {
+    id: 4,
+    question:
+      "Have you been stung or noticed aggressive behavior from the bees?",
+    options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+    ],
+  },
+];
+
+pestSpecificQuestions["Wasps"] = [
+  {
+    id: 2,
+    question: "Have you noticed wasp nests near your home or property?",
+    options: [
+      { value: "yes_near", label: "Yes, near windows, roof, or eaves" },
+      { value: "no_nests", label: "No, I haven't seen any nests" },
+    ],
+  },
+  {
+    id: 3,
+    question: "Are you seeing wasps flying around frequently?",
+    options: [
+      { value: "frequently", label: "Yes, frequently" },
+      { value: "occasionally", label: "Occasionally" },
+      { value: "no", label: "No, not seen any" },
+    ],
+  },
+  {
+    id: 4,
+    question:
+      "Have you been stung or noticed aggressive behavior from the wasps?",
+    options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+    ],
+  },
+];
+
+pestSpecificQuestions["Yellow Jackets"] = [
+  {
+    id: 2,
+    question:
+      "Have you noticed yellow jacket nests near your home or property?",
+    options: [
+      { value: "yes_near", label: "Yes, near windows, roof, or eaves" },
+      { value: "no_nests", label: "No, I haven't seen any nests" },
+    ],
+  },
+  {
+    id: 3,
+    question: "Are you seeing yellow jackets flying around frequently?",
+    options: [
+      { value: "frequently", label: "Yes, frequently" },
+      { value: "occasionally", label: "Occasionally" },
+      { value: "no", label: "No, not seen any" },
+    ],
+  },
+  {
+    id: 4,
+    question:
+      "Have you been stung or noticed aggressive behavior from the yellow jackets?",
+    options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+    ],
+  },
+];
+
+function calculateSeverity(selectedPest: string, answers: UserAnswers): string {
+  const questions = pestSpecificQuestions[selectedPest] || [];
+  let severityScore = 0;
+
+  questions.forEach((question) => {
+    const answer = answers[question.id] as string;
+
+    // High severity indicators
+    if (
+      answer === "hundreds" ||
+      answer === "daily" ||
+      answer === "every_night" ||
+      answer === "multiple_places" ||
+      answer === "often" ||
+      answer === "several_large" ||
+      answer === "yes_damage" ||
+      answer === "yes_sacs" ||
+      answer === "multiple" ||
+      answer === "frequently" ||
+      (answer === "yes" && question.question.includes("aggressive"))
+    ) {
+      severityScore += 3;
+    }
+    // Medium severity indicators
+    else if (
+      answer === "few" ||
+      answer === "occasionally" ||
+      answer === "one_area" ||
+      answer === "few_small" ||
+      answer === "one_two" ||
+      answer === "weekly"
+    ) {
+      severityScore += 2;
+    }
+    // Low severity indicators
+    else if (
+      answer === "occasional" ||
+      answer === "rarely" ||
+      answer === "no_signs" ||
+      answer === "no_damage" ||
+      answer === "no" ||
+      answer === "none"
+    ) {
+      severityScore += 1;
+    }
+  });
+
+  const maxPossibleScore = questions.length * 3;
+  const severityPercentage = (severityScore / maxPossibleScore) * 100;
+
+  if (severityPercentage >= 70) return "Severe";
+  if (severityPercentage >= 40) return "High";
   return "Moderate";
 }
+
+const pestRecommendations: { [key: string]: { [key: string]: string[] } } = {
+  "Ants (Carpenter, Argentine, Odorous, etc.)": {
+    Moderate: [
+      "Seal Entry Points: Seal cracks, gaps, and crevices around windows, doors, and walls where ants are entering.",
+      "Use Ant Baits: Place ant bait or gel in areas where ants are most active (e.g., kitchen, bathroom). The ants will carry the bait back to the nest.",
+    ],
+    High: [
+      "Seal Entry Points: Seal cracks, gaps, and crevices around windows, doors, and walls where ants are entering.",
+      "Use Ant Baits: Place ant bait or gel in areas where ants are most active (e.g., kitchen, bathroom). The ants will carry the bait back to the nest.",
+      "Professional Treatment: Consider professional ant control for persistent infestations.",
+    ],
+    Severe: [
+      "Immediate Professional Treatment: Contact a pest control professional immediately for severe ant infestations.",
+      "Structural Inspection: Have your property inspected for structural damage, especially with carpenter ants.",
+    ],
+  },
+  Spiders: {
+    Moderate: [
+      "Vacuum Webs Regularly: Regularly vacuum spider webs, especially in corners, ceilings, and other hidden areas.",
+      "Remove Clutter: Clear clutter in dark areas (e.g., closets, basements), as spiders often nest in undisturbed places.",
+    ],
+    High: [
+      "Vacuum Webs Regularly: Regularly vacuum spider webs, especially in corners, ceilings, and other hidden areas.",
+      "Remove Clutter: Clear clutter in dark areas (e.g., closets, basements), as spiders often nest in undisturbed places.",
+      "Seal Entry Points: Seal cracks and gaps where spiders may enter your home.",
+    ],
+    Severe: [
+      "Professional Treatment: Contact a pest control professional for severe spider infestations.",
+      "Species Identification: Have spiders identified to determine if they are dangerous species.",
+    ],
+  },
+  "Cockroaches (German, Oriental, American, Turkish)": {
+    Moderate: [
+      "Clean Regularly: Cockroaches are attracted to food and grease, so clean kitchen counters, floors, and under appliances daily.",
+      "Set Traps: Use cockroach traps or gel bait in areas where you've seen activity.",
+      "Fix Leaks: Cockroaches are attracted to moisture, so fix any leaks in pipes or faucets.",
+    ],
+    High: [
+      "Clean Regularly: Cockroaches are attracted to food and grease, so clean kitchen counters, floors, and under appliances daily.",
+      "Set Traps: Use cockroach traps or gel bait in areas where you've seen activity.",
+      "Fix Leaks: Cockroaches are attracted to moisture, so fix any leaks in pipes or faucets.",
+      "Professional Baiting: Consider professional-grade baiting systems for persistent problems.",
+    ],
+    Severe: [
+      "Immediate Professional Treatment: Contact a pest control professional immediately for severe cockroach infestations.",
+      "Health Risk Assessment: Cockroaches can spread diseases - immediate action required.",
+    ],
+  },
+  "Rodents (Rats, Mice)": {
+    Moderate: [
+      "Seal Entry Points: Use steel wool or caulk to seal cracks around windows, doors, and foundation, where rodents can enter.",
+      "Set Traps: Use snap traps, live traps, or bait stations along walls and pathways where rodents travel.",
+      "Remove Food Sources: Store food in sealed containers, and clean up crumbs or spills immediately.",
+      "Remove Clutter: Clear clutter in attics, basements, and under furniture where rodents can nest.",
+    ],
+    High: [
+      "Seal Entry Points: Use steel wool or caulk to seal cracks around windows, doors, and foundation, where rodents can enter.",
+      "Set Traps: Use snap traps, live traps, or bait stations along walls and pathways where rodents travel.",
+      "Remove Food Sources: Store food in sealed containers, and clean up crumbs or spills immediately.",
+      "Remove Clutter: Clear clutter in attics, basements, and under furniture where rodents can nest.",
+      "Professional Baiting: Consider professional rodent control programs.",
+    ],
+    Severe: [
+      "Immediate Professional Treatment: Contact a pest control professional immediately for severe rodent infestations.",
+      "Health and Safety Assessment: Rodents can spread diseases and cause structural damage - immediate action required.",
+    ],
+  },
+};
+
+pestRecommendations["Earwigs"] = {
+  Moderate: [
+    "Reduce Moisture: Earwigs are attracted to moisture, so fix any leaks in bathrooms, kitchens, or basements.",
+    "Remove Hiding Spots: Clear leaves, mulch, and other debris around the foundation of your home where earwigs may hide.",
+  ],
+  High: [
+    "Reduce Moisture: Earwigs are attracted to moisture, so fix any leaks in bathrooms, kitchens, or basements.",
+    "Remove Hiding Spots: Clear leaves, mulch, and other debris around the foundation of your home where earwigs may hide.",
+    "Perimeter Treatment: Apply diatomaceous earth around entry points.",
+  ],
+  Severe: [
+    "Professional Treatment: Contact a pest control professional for severe earwig infestations.",
+  ],
+};
+
+pestRecommendations["Silverfish"] = {
+  Moderate: [
+    "Reduce Humidity: Use a dehumidifier in damp areas (bathrooms, basements) to lower humidity, which attracts silverfish.",
+    "Store Food Properly: Store dry foods like grains and flour in airtight containers.",
+  ],
+  High: [
+    "Reduce Humidity: Use a dehumidifier in damp areas (bathrooms, basements) to lower humidity, which attracts silverfish.",
+    "Store Food Properly: Store dry foods like grains and flour in airtight containers.",
+    "Seal Cracks: Seal cracks and crevices where silverfish may hide.",
+  ],
+  Severe: [
+    "Professional Treatment: Contact a pest control professional for severe silverfish infestations.",
+  ],
+};
+
+pestRecommendations["Beetles (Carpet, Weevils, etc.)"] = {
+  Moderate: [
+    "Vacuum Regularly: Vacuum carpets, floors, furniture, and other places where beetles may be hiding or laying eggs.",
+    "Store Dry Goods Properly: If dealing with weevils or other food pests, store dry food in airtight containers.",
+    "Wash Fabric Items: Wash blankets, curtains, and rugs in hot water to kill larvae and eggs.",
+  ],
+  High: [
+    "Vacuum Regularly: Vacuum carpets, floors, furniture, and other places where beetles may be hiding or laying eggs.",
+    "Store Dry Goods Properly: If dealing with weevils or other food pests, store dry food in airtight containers.",
+    "Wash Fabric Items: Wash blankets, curtains, and rugs in hot water to kill larvae and eggs.",
+    "Professional Treatment: Consider professional beetle control for persistent infestations.",
+  ],
+  Severe: [
+    "Immediate Professional Treatment: Contact a pest control professional immediately for severe beetle infestations.",
+  ],
+};
+
+pestRecommendations["Stored Food Pests (e.g., Indian Meal Moths)"] = {
+  Moderate: [
+    "Inspect and Discard Infested Food: Check all food products in your pantry, especially grains and dried fruits, for signs of infestation. Discard any infested items.",
+    "Store Food Properly: Store all dry food products in airtight containers to prevent pests from accessing them.",
+    "Vacuum and Clean: Vacuum pantry shelves and surrounding areas to remove larvae, eggs, and webs.",
+  ],
+  High: [
+    "Inspect and Discard Infested Food: Check all food products in your pantry, especially grains and dried fruits, for signs of infestation. Discard any infested items.",
+    "Store Food Properly: Store all dry food products in airtight containers to prevent pests from accessing them.",
+    "Vacuum and Clean: Vacuum pantry shelves and surrounding areas to remove larvae, eggs, and webs.",
+    "Pheromone Traps: Use pheromone traps to monitor and control adult moths.",
+  ],
+  Severe: [
+    "Professional Treatment: Contact a pest control professional for severe stored food pest infestations.",
+    "Complete Pantry Overhaul: May require complete cleaning and replacement of all stored food items.",
+  ],
+};
+
+pestRecommendations["Gophers"] = {
+  Moderate: [
+    "Set Traps: Use gopher traps in active tunnels or burrows.",
+    "Create Barriers: Install underground barriers (e.g., wire mesh) to prevent gophers from digging under fences or gardens.",
+  ],
+  High: [
+    "Set Traps: Use gopher traps in active tunnels or burrows.",
+    "Create Barriers: Install underground barriers (e.g., wire mesh) to prevent gophers from digging under fences or gardens.",
+    "Professional Baiting: Consider professional gopher control programs.",
+  ],
+  Severe: [
+    "Professional Treatment: Contact a pest control professional for severe gopher infestations.",
+  ],
+};
+
+pestRecommendations["Moles"] = {
+  Moderate: [
+    "Set Traps: Use mole traps in active tunnels or burrows.",
+    "Create Barriers: Install underground barriers to prevent moles from accessing certain areas.",
+  ],
+  High: [
+    "Set Traps: Use mole traps in active tunnels or burrows.",
+    "Create Barriers: Install underground barriers to prevent moles from accessing certain areas.",
+    "Professional Treatment: Consider professional mole control for extensive damage.",
+  ],
+  Severe: [
+    "Professional Treatment: Contact a pest control professional for severe mole infestations.",
+  ],
+};
+
+pestRecommendations["Bees"] = {
+  Moderate: [
+    "For your safety and the safety of others, we recommend contacting a professional for bee removal.",
+    "Do not attempt to remove bee hives yourself.",
+  ],
+  High: [
+    "For your safety and the safety of others, we recommend contacting a professional for bee removal immediately.",
+    "Avoid the area where bees are active.",
+  ],
+  Severe: [
+    "IMMEDIATE PROFESSIONAL TREATMENT REQUIRED: Contact a pest control professional immediately for bee removal.",
+    "Do not approach bee hives or swarms - serious safety risk.",
+  ],
+};
+
+pestRecommendations["Wasps"] = {
+  Moderate: [
+    "For your safety and the safety of others, we recommend contacting a professional for wasp removal.",
+    "Do not attempt to remove wasp nests yourself.",
+  ],
+  High: [
+    "For your safety and the safety of others, we recommend contacting a professional for wasp removal immediately.",
+    "Avoid the area where wasps are active.",
+  ],
+  Severe: [
+    "IMMEDIATE PROFESSIONAL TREATMENT REQUIRED: Contact a pest control professional immediately for wasp removal.",
+    "Do not approach wasp nests - serious safety risk.",
+  ],
+};
+
+pestRecommendations["Yellow Jackets"] = {
+  Moderate: [
+    "For your safety and the safety of others, we recommend contacting a professional for yellow jacket removal.",
+    "Do not attempt to remove yellow jacket nests yourself.",
+  ],
+  High: [
+    "For your safety and the safety of others, we recommend contacting a professional for yellow jacket removal immediately.",
+    "Avoid the area where yellow jackets are active.",
+  ],
+  Severe: [
+    "IMMEDIATE PROFESSIONAL TREATMENT REQUIRED: Contact a pest control professional immediately for yellow jacket removal.",
+    "Do not approach yellow jacket nests - serious safety risk.",
+  ],
+};
 
 function handleContactClick(setShowContactForm: any, setContactType: any) {
   setContactType("call");
@@ -141,6 +760,9 @@ function handleContactClick(setShowContactForm: any, setContactType: any) {
 }
 
 export default function AssessmentPage() {
+  const [currentStep, setCurrentStep] = useState(0); // 0 = pest selection, 1+ = questions
+  const [selectedPests, setSelectedPests] = useState<string[]>([]);
+  const [primaryPest, setPrimaryPest] = useState<string>("");
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<UserAnswers>({});
   const [showResults, setShowResults] = useState(false);
@@ -160,18 +782,34 @@ export default function AssessmentPage() {
   useEffect(() => {
     const storedUserData = sessionStorage.getItem("userData");
     if (!storedUserData) {
-      // Redirect back to home if no user data
       router.push("/");
       return;
     }
     setUserData(JSON.parse(storedUserData));
   }, [router]);
 
+  const handlePestSelection = (pest: string) => {
+    setSelectedPests((prev) => {
+      if (prev.includes(pest)) {
+        return prev.filter((p) => p !== pest);
+      } else {
+        return [...prev, pest];
+      }
+    });
+  };
+
+  const startAssessment = () => {
+    if (selectedPests.length === 0) return;
+    setPrimaryPest(selectedPests[0]); // First selected is priority
+    setCurrentStep(1);
+  };
+
   const handleAnswer = (questionId: number, value: string | string[]) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
   };
 
   const nextQuestion = () => {
+    const questions = pestSpecificQuestions[primaryPest] || [];
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion((prev) => prev + 1);
     } else {
@@ -182,18 +820,28 @@ export default function AssessmentPage() {
   const prevQuestion = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion((prev) => prev - 1);
+    } else {
+      setCurrentStep(0);
+      setCurrentQuestion(0);
     }
   };
 
-  const progress = ((currentQuestion + 1) / questions.length) * 100;
+  const questions = pestSpecificQuestions[primaryPest] || [];
+  const totalSteps = questions.length + 1; // +1 for pest selection
+  const progress =
+    currentStep === 0
+      ? (1 / totalSteps) * 100
+      : ((currentStep + currentQuestion + 1) / totalSteps) * 100;
 
   const getCurrentAnswer = () => {
+    if (questions.length === 0) return undefined;
     return answers[questions[currentQuestion].id];
   };
 
   const isAnswered = () => {
+    if (currentStep === 0) return selectedPests.length > 0;
     const answer = getCurrentAnswer();
-    if (questions[currentQuestion].multiple) {
+    if (questions[currentQuestion]?.multiple) {
       return Array.isArray(answer) && answer.length > 0;
     }
     return answer !== undefined;
@@ -282,6 +930,7 @@ export default function AssessmentPage() {
     return (
       <div className="min-h-screen bg-background">
         <ResultsPage
+          primaryPest={primaryPest}
           answers={answers}
           setShowContactForm={setShowContactForm}
           setContactType={setContactType}
@@ -294,17 +943,126 @@ export default function AssessmentPage() {
           removeFile={removeFile}
           isUploading={isUploading}
           userData={userData}
+          selectedPests={selectedPests} // Pass selectedPests to ResultsPage
         />
         <AIChatbot currentQuestion={-1} answers={answers} />
         <ContactFormModal
           isOpen={showContactForm}
           onClose={() => setShowContactForm(false)}
           contactType={contactType}
-          pestInfo={identifyPest(answers)}
+          pestInfo={{
+            pest: primaryPest,
+            activityLevel: calculateSeverity(primaryPest, answers),
+            confidence: "High",
+          }}
           assessmentAnswers={answers}
           detailedDescription={detailedDescription}
           uploadedFiles={uploadedFiles}
+          otherPests={selectedPests.filter((pest) => pest !== primaryPest)} // Pass other pests to contact form
         />
+      </div>
+    );
+  }
+
+  if (currentStep === 0) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b border-border bg-card">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-10 h-10 bg-primary rounded-lg">
+                <Bug className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-card-foreground">
+                  Pest Assessment Tool
+                </h1>
+                <p className="text-muted-foreground">
+                  Professional pest severity assessment
+                </p>
+              </div>
+              <div className="ml-auto">
+                <p className="text-sm text-muted-foreground">
+                  Welcome, {userData.name}
+                </p>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="container mx-auto px-4 py-8 max-w-2xl">
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-foreground">
+                Step 1 of {totalSteps}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                {Math.round(progress)}% Complete
+              </span>
+            </div>
+            <Progress value={progress} className="h-2" />
+          </div>
+
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="text-xl text-card-foreground">
+                What type(s) of pest are you dealing with?
+              </CardTitle>
+              <div className="space-y-2">
+                <Badge variant="secondary" className="w-fit">
+                  Select all that apply
+                </Badge>
+                <p className="text-sm text-muted-foreground">
+                  <strong>Important:</strong> Please select pests in order of
+                  importance. The first pest you select will be our primary
+                  focus for the detailed assessment.
+                </p>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {pestTypes.map((pest, index) => {
+                const isSelected = selectedPests.includes(pest);
+                const selectionOrder = selectedPests.indexOf(pest) + 1;
+
+                return (
+                  <Button
+                    key={pest}
+                    variant={isSelected ? "default" : "outline"}
+                    className="w-full justify-start text-left h-auto p-4"
+                    onClick={() => handlePestSelection(pest)}
+                  >
+                    <div className="flex items-center gap-3 w-full">
+                      {isSelected && <CheckCircle className="w-5 h-5" />}
+                      <span className="flex-1">{pest}</span>
+                      {isSelected && (
+                        <Badge variant="secondary" className="ml-auto">
+                          {selectionOrder === 1
+                            ? "Primary"
+                            : `#${selectionOrder}`}
+                        </Badge>
+                      )}
+                    </div>
+                  </Button>
+                );
+              })}
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-between">
+            <Button variant="outline" disabled>
+              Previous
+            </Button>
+            <Button
+              onClick={startAssessment}
+              disabled={!isAnswered()}
+              className="min-w-24"
+            >
+              Start Assessment
+            </Button>
+          </div>
+        </div>
+
+        <AIChatbot currentQuestion={-1} answers={{}} />
       </div>
     );
   }
@@ -313,7 +1071,6 @@ export default function AssessmentPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-3">
@@ -324,9 +1081,7 @@ export default function AssessmentPage() {
               <h1 className="text-2xl font-bold text-card-foreground">
                 Pest Assessment Tool
               </h1>
-              <p className="text-muted-foreground">
-                Professional pest identification and consultation
-              </p>
+              <p className="text-muted-foreground">Assessing: {primaryPest}</p>
             </div>
             <div className="ml-auto">
               <p className="text-sm text-muted-foreground">
@@ -338,7 +1093,6 @@ export default function AssessmentPage() {
       </header>
 
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium text-foreground">
@@ -351,7 +1105,6 @@ export default function AssessmentPage() {
           <Progress value={progress} className="h-2" />
         </div>
 
-        {/* Question Card */}
         <Card className="mb-8">
           <CardHeader>
             <CardTitle className="text-xl text-card-foreground">
@@ -398,13 +1151,8 @@ export default function AssessmentPage() {
           </CardContent>
         </Card>
 
-        {/* Navigation */}
         <div className="flex justify-between">
-          <Button
-            variant="outline"
-            onClick={prevQuestion}
-            disabled={currentQuestion === 0}
-          >
+          <Button variant="outline" onClick={prevQuestion}>
             Previous
           </Button>
           <Button
@@ -431,6 +1179,7 @@ export default function AssessmentPage() {
 }
 
 function ResultsPage({
+  primaryPest,
   answers,
   setShowContactForm,
   setContactType,
@@ -443,7 +1192,9 @@ function ResultsPage({
   removeFile,
   isUploading,
   userData,
+  selectedPests, // Added selectedPests prop
 }: {
+  primaryPest: string;
   answers: UserAnswers;
   setShowContactForm: any;
   setContactType: any;
@@ -461,10 +1212,44 @@ function ResultsPage({
   removeFile: any;
   isUploading: boolean;
   userData: { name: string; email: string };
+  selectedPests: string[]; // Added selectedPests prop type
 }) {
-  const pestResult = identifyPest(answers);
-  const activityLevel = getActivityLevel(answers);
+  const activityLevel = calculateSeverity(primaryPest, answers);
   const recommendation = getRecommendation(activityLevel);
+  const [emailSent, setEmailSent] = useState(false);
+
+  useEffect(() => {
+    const sendRecommendations = async () => {
+      try {
+        const otherPests = selectedPests.filter((pest) => pest !== primaryPest);
+
+        const response = await fetch("/api/send-recommendations", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: userData.email,
+            name: userData.name,
+            primaryPest,
+            otherPests,
+            answers,
+            activityLevel,
+          }),
+        });
+
+        if (response.ok) {
+          setEmailSent(true);
+        }
+      } catch (error) {
+        console.error("Failed to send recommendations email:", error);
+      }
+    };
+
+    if (userData && primaryPest && !emailSent) {
+      sendRecommendations();
+    }
+  }, [userData, primaryPest, selectedPests, answers, activityLevel, emailSent]);
 
   const getThemeColors = (level: string) => {
     switch (level) {
@@ -560,7 +1345,7 @@ function ResultsPage({
       </header>
 
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        {/* <Card
+        <Card
           className={`mb-6 ${themeColors.glow} border-2`}
           style={{
             borderColor:
@@ -574,22 +1359,22 @@ function ResultsPage({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Home className="w-5 h-5" />
-              Pest Identification Results
+              Pest Assessment Results
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Likely Pest
+                  Primary Pest
                 </p>
                 <p className="text-lg font-semibold text-card-foreground">
-                  {pestResult.pest}
+                  {primaryPest}
                 </p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Activity Level
+                  Severity Level
                 </p>
                 <Badge
                   className={`${themeColors.badge} font-bold ${
@@ -600,14 +1385,15 @@ function ResultsPage({
                 </Badge>
               </div>
             </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground mb-2">
-                Confidence Level
-              </p>
-              <Badge variant="outline">{pestResult.confidence}</Badge>
-            </div>
+            {emailSent && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <p className="text-green-800 text-sm font-medium">
+                  ✅ Detailed recommendations have been sent to {userData.email}
+                </p>
+              </div>
+            )}
           </CardContent>
-        </Card> */}
+        </Card>
 
         <Card
           className={`mb-6 ${themeColors.accent} border-2`}
@@ -622,7 +1408,7 @@ function ResultsPage({
         >
           <CardHeader>
             <CardTitle className={themeColors.accentText}>
-              Our Professional Recommendation
+              Assessment Summary
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -660,6 +1446,20 @@ function ResultsPage({
                 </p>
               </div>
             )}
+
+            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="font-semibold mb-2 text-blue-800">
+                📧 Check Your Email
+              </h4>
+              <p className="text-blue-700 text-sm">
+                We've sent detailed, pest-specific recommendations to{" "}
+                <strong>{userData.email}</strong>. The email includes
+                step-by-step guidance for your primary pest ({primaryPest})
+                {selectedPests.length > 1 &&
+                  ` and ${selectedPests.length - 1} other pest(s) you selected`}
+                .
+              </p>
+            </div>
           </CardContent>
         </Card>
 

@@ -92,9 +92,7 @@ export default function HomePage() {
                 Don't Let Pests Take Over Your Home
               </h2>
               <p className="text-xl text-muted-foreground text-pretty leading-relaxed">
-                Get a professional pest assessment in under 5 minutes. Our
-                expert system identifies your pest problem and connects you with
-                certified professionals for immediate solutions.
+                Get a professional pest assessment in under 5 minutes.
               </p>
             </div>
 
@@ -162,7 +160,7 @@ export default function HomePage() {
                   Start Your Free Assessment
                 </CardTitle>
                 <p className="text-muted-foreground">
-                  Enter your details to begin the pest identification process
+                  Enter your info to get started now.
                 </p>
               </CardHeader>
               <CardContent>
@@ -207,8 +205,7 @@ export default function HomePage() {
                       className="text-sm text-gray-700 leading-relaxed cursor-pointer"
                     >
                       I agree to receive communications about pest control
-                      services and assessment results. You can unsubscribe at
-                      any time.
+                      services and assessment results.
                     </Label>
                   </div>
 

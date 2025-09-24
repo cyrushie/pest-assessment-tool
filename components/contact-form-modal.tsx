@@ -41,6 +41,7 @@ interface ContactFormModalProps {
     size: number;
     type: string;
   }>;
+  otherPests?: string[]; // Added otherPests prop
 }
 
 export function ContactFormModal({
@@ -51,6 +52,7 @@ export function ContactFormModal({
   assessmentAnswers,
   detailedDescription = "",
   uploadedFiles = [],
+  otherPests = [], // Added otherPests parameter with default
 }: ContactFormModalProps) {
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
@@ -79,6 +81,7 @@ export function ContactFormModal({
       assessmentAnswers,
       contactType,
       detailedDescription,
+      otherPests, // Include other pests in submission
       uploadedFilesInfo: uploadedFiles.map((file) => ({
         url: file.url,
         filename: file.filename,
@@ -247,8 +250,13 @@ export function ContactFormModal({
             </h4>
             <div className="text-sm text-muted-foreground space-y-1">
               <p>
-                <strong>Identified Pest:</strong> {pestInfo.pest}
+                <strong>Primary Pest:</strong> {pestInfo.pest}
               </p>
+              {otherPests.length > 0 && (
+                <p>
+                  <strong>Other Pests:</strong> {otherPests.join(", ")}
+                </p>
+              )}
               <p>
                 <strong>Activity Level:</strong> {pestInfo.activityLevel}
               </p>
