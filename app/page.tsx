@@ -1,15 +1,15 @@
 "use client";
 
 import type React from "react";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Bug, Shield, Clock } from "lucide-react";
+import { Bug, Shield, Clock, Calendar } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { StandaloneScheduleForm } from "@/components/standalone-schedule-form";
 
 export default function HomePage() {
   const [name, setName] = useState("");
@@ -17,7 +17,14 @@ export default function HomePage() {
   const [consent, setConsent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [showScheduleForm, setShowScheduleForm] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    sessionStorage.removeItem("pest_assessment_chat_history");
+    sessionStorage.removeItem("pest_assessment_results_message_sent");
+    sessionStorage.removeItem("userData");
+  }, []);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -52,6 +59,13 @@ export default function HomePage() {
       return;
     }
 
+    if (!consent) {
+      alert(
+        "Please agree to receive communications to continue with the assessment."
+      );
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -63,7 +77,7 @@ export default function HomePage() {
         body: JSON.stringify({
           name: name.trim(),
           email: email.trim(),
-          consent: consent, // Send consent status to API
+          consent: consent,
           timestamp: new Date().toISOString(),
         }),
       });
@@ -72,13 +86,11 @@ export default function HomePage() {
         throw new Error("Failed to save lead data");
       }
 
-      // Store user data in sessionStorage for the assessment
       sessionStorage.setItem(
         "userData",
         JSON.stringify({ name: name.trim(), email: email.trim() })
       );
 
-      // Redirect to assessment
       router.push("/assessment");
     } catch (error) {
       console.error("Error saving lead:", error);
@@ -87,6 +99,34 @@ export default function HomePage() {
       setIsSubmitting(false);
     }
   };
+
+  if (showScheduleForm) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b border-border bg-card">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-10 h-10 bg-primary rounded-lg">
+                <Bug className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-card-foreground">
+                  Professional Pest Assessment
+                </h1>
+                <p className="text-muted-foreground">
+                  Get expert pest identification in minutes
+                </p>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="container mx-auto px-4 py-12">
+          <StandaloneScheduleForm onClose={() => setShowScheduleForm(false)} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -124,21 +164,6 @@ export default function HomePage() {
 
             {/* Benefits */}
             <div className="space-y-4">
-              {/* <div className="flex items-start gap-3">
-                <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full mt-1">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">
-                    Instant Pest Identification
-                  </h3>
-                  <p className="text-muted-foreground">
-                    Advanced assessment tool identifies your specific pest
-                    problem
-                  </p>
-                </div>
-              </div> */}
-
               <div className="flex items-start gap-3">
                 <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full mt-1">
                   <Shield className="w-5 h-5 text-blue-600" />
@@ -175,6 +200,28 @@ export default function HomePage() {
                 problems early can save you thousands in damage and treatment
                 costs.
               </p>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <Calendar className="w-5 h-5 text-blue-600 mt-1" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-blue-900 mb-1">
+                    Already Know Your Pest Issue?
+                  </h3>
+                  <p className="text-blue-800 text-sm mb-3">
+                    Skip the assessment and speak directly with our experts.
+                  </p>
+                  <Button
+                    onClick={() => setShowScheduleForm(true)}
+                    variant="outline"
+                    className="bg-white hover:bg-blue-50 border-blue-300 text-blue-700"
+                  >
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Schedule Consultation
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -246,7 +293,8 @@ export default function HomePage() {
                       isSubmitting ||
                       !name.trim() ||
                       !email.trim() ||
-                      !!emailError
+                      !!emailError ||
+                      !consent
                     }
                   >
                     {isSubmitting

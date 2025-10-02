@@ -9,7 +9,10 @@
     "start": "next start"
   },
   "dependencies": {
+    "@ai-sdk/react": "^2.0.59",
     "@hookform/resolvers": "^3.10.0",
+    "@langchain/core": "^0.3.78",
+    "@langchain/google-genai": "^0.2.18",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
     "@radix-ui/react-aspect-ratio": "1.1.1",
@@ -38,6 +41,7 @@
     "@radix-ui/react-toggle-group": "1.1.1",
     "@radix-ui/react-tooltip": "1.1.6",
     "@vercel/blob": "^1.1.1",
+    "ai": "^5.0.59",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -57,6 +61,7 @@
     "react-day-picker": "9.8.0",
     "react-dom": "^18",
     "react-hook-form": "^7.60.0",
+    "react-markdown": "^10.1.0",
     "react-resizable-panels": "^2.1.7",
     "recharts": "latest",
     "resend": "^6.1.0",

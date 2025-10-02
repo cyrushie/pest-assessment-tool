@@ -786,6 +786,10 @@ export default function AssessmentPage() {
       return;
     }
     setUserData(JSON.parse(storedUserData));
+
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("pest_assessment_results_message_sent");
+    }
   }, [router]);
 
   const handlePestSelection = (pest: string) => {
@@ -943,9 +947,18 @@ export default function AssessmentPage() {
           removeFile={removeFile}
           isUploading={isUploading}
           userData={userData}
-          selectedPests={selectedPests} // Pass selectedPests to ResultsPage
+          selectedPests={selectedPests}
         />
-        <AIChatbot currentQuestion={-1} answers={answers} />
+        <AIChatbot
+          currentQuestion={-1}
+          answers={answers}
+          userName={userData.name}
+          assessmentResults={{
+            primaryPest: primaryPest,
+            severity: calculateSeverity(primaryPest, answers),
+            selectedPests: selectedPests,
+          }}
+        />
         <ContactFormModal
           isOpen={showContactForm}
           onClose={() => setShowContactForm(false)}
@@ -958,7 +971,8 @@ export default function AssessmentPage() {
           assessmentAnswers={answers}
           detailedDescription={detailedDescription}
           uploadedFiles={uploadedFiles}
-          otherPests={selectedPests.filter((pest) => pest !== primaryPest)} // Pass other pests to contact form
+          otherPests={selectedPests.filter((pest) => pest !== primaryPest)}
+          userData={userData}
         />
       </div>
     );
@@ -1062,7 +1076,7 @@ export default function AssessmentPage() {
           </div>
         </div>
 
-        <AIChatbot currentQuestion={-1} answers={{}} />
+        <AIChatbot currentQuestion={-1} answers={{}} userName={userData.name} />
       </div>
     );
   }
@@ -1173,6 +1187,7 @@ export default function AssessmentPage() {
             nextQuestion();
           }
         }}
+        userName={userData.name}
       />
     </div>
   );
@@ -1483,7 +1498,7 @@ function ResultsPage({
               />
             </div>
 
-            <div>
+            {/* <div>
               <Label htmlFor="file-upload">
                 Upload Images or Videos (Max 20MB each)
               </Label>
@@ -1539,7 +1554,7 @@ function ResultsPage({
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
           </CardContent>
         </Card>
 
