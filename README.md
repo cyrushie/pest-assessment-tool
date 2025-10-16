@@ -78,7 +78,7 @@ An interactive **AI-powered pest assessment and lead generation web app** design
 
 # Clone the repository
 
-git clone https://github.com/yourusername/pest-assessment-tool.git
+git clone https://github.com/cyrushie/pest-assessment-tool.git
 cd pest-assessment-tool
 
 # Install dependencies
@@ -118,17 +118,9 @@ GOOGLE_SERVICE_ACCOUNT_EMAIL=your-service-account@your-project.iam.gserviceaccou
 GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour private key here\n-----END PRIVATE KEY-----"
 GOOGLE_SHEET_ID=your_google_sheet_id_here
 
-# Vercel Blob Storage (automatically provided by Vercel)
-
-BLOB_READ_WRITE_TOKEN=vercel_blob_token_here
-
-# Resend Email Service (optional)
-
-RESEND_API_KEY=re_your_resend_api_key_here
-
 # App URL (for production)
 
-NEXT_PUBLIC_APP_URL=https://your-app-url.vercel.app
+NEXT_PUBLIC_APP_URL=https://pest-assessment-tool.vercel.app
 ```
 
 ### Google Sheets Setup
@@ -190,23 +182,6 @@ pest-assessment-tool/
 
 ---
 
-## 🚀 Deployment
-
-### Deploy to Vercel
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/pest-assessment-tool)
-
-1. Push your code to GitHub
-2. Import the project in Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy!
-
-### Required Vercel Integrations
-
-- **Vercel Blob** – For image storage (add from Vercel dashboard)
-
----
-
 ## 🔧 Configuration
 
 ### Customizing the AI Behavior
@@ -255,11 +230,6 @@ The app saves the following data to Google Sheets:
 ---
 
 ## 🐛 Troubleshooting
-
-### Image Upload Not Working
-
-- Ensure `BLOB_READ_WRITE_TOKEN` is set correctly
-- Check that Vercel Blob integration is enabled
 
 ### Google Sheets Not Saving
 
