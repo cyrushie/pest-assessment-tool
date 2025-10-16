@@ -172,7 +172,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       response:
         text ||
-        "I'm here to help! Could you tell me more about the pest issue you're experiencing?",
+        "Perfect! Your consultation has been successfully scheduled. A pest control specialist will reach out to you soon at your preferred time. Is there anything else you'd like to know about your pest situation?",
       shouldSaveToSheets: false,
     });
   } catch (error) {
