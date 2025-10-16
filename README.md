@@ -184,6 +184,7 @@ pest-assessment-tool/
 └── public/                          # Static assets
 
 \`\`\`
+
 pest-assessment-tool/
 ├── app/
 │   ├── api/
@@ -200,8 +201,9 @@ pest-assessment-tool/
 ├── lib/
 │   └── utils.ts                     # Utility functions
 └── public/                          # Static assets
+
 \`\`\`
-
+```
 pest-assessment-tool/
 ├── app/
 │   ├── api/
@@ -218,7 +220,7 @@ pest-assessment-tool/
 ├── lib/
 │   └── utils.ts                     # Utility functions
 └── public/                          # Static assets
-
+```
 
 ---
 
