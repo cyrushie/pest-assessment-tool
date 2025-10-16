@@ -11,8 +11,6 @@ An interactive **AI-powered pest assessment and lead generation web app** design
 - 📊 **Severity Analysis** – AI evaluates infestation severity and urgency based on pest type, location, frequency, and signs
 - 📞 **Automated Lead Capture** – Seamlessly collects contact information and saves leads to Google Sheets
 - 🖼️ **Image Upload & Analysis** – Users can upload pest photos for instant AI identification
-- ☁️ **Cloud Storage** – Pest images stored securely using Vercel Blob
-- 📧 **Email Integration** – Ready for automated follow-up emails via Resend
 - 🎨 **Modern UI** – Built with Next.js 15, React 19, and Tailwind CSS v4
 
 ---
@@ -26,9 +24,7 @@ An interactive **AI-powered pest assessment and lead generation web app** design
 | **Styling**    | Tailwind CSS v4, shadcn/ui   |
 | **AI Model**   | Google Gemini 2.5 Flash      |
 | **AI SDK**     | Vercel AI SDK v5             |
-| **Storage**    | Vercel Blob (image uploads)  |
 | **Database**   | Google Sheets (lead storage) |
-| **Email**      | Resend API                   |
 | **Deployment** | Vercel                       |
 
 ---
@@ -75,8 +71,6 @@ An interactive **AI-powered pest assessment and lead generation web app** design
 
 - Node.js 18+ installed
 - Google Cloud account (for Gemini AI and Sheets API)
-- Vercel account (for Blob storage and deployment)
-- Resend account (optional, for email notifications)
 
 ### Installation
 
@@ -188,6 +182,43 @@ pest-assessment-tool/
 ├── lib/
 │   └── utils.ts                     # Utility functions
 └── public/                          # Static assets
+
+\`\`\`
+pest-assessment-tool/
+├── app/
+│   ├── api/
+│   │   ├── chat/route.ts            # AI chatbot endpoint with Gemini
+│   │   ├── upload/route.ts          # Image upload to Vercel Blob
+│   │   ├── save-to-sheets/route.ts  # Google Sheets integration
+│   │   └── ...
+│   ├── assessment/page.tsx          # Main assessment page with chatbot
+│   ├── page.tsx                     # Homepage with lead capture
+│   └── layout.tsx                   # Root layout
+├── components/
+│   ├── ai-chatbot.tsx               # Main chatbot component
+│   └── ui/                          # shadcn/ui components
+├── lib/
+│   └── utils.ts                     # Utility functions
+└── public/                          # Static assets
+\`\`\`
+
+pest-assessment-tool/
+├── app/
+│   ├── api/
+│   │   ├── chat/route.ts            # AI chatbot endpoint with Gemini
+│   │   ├── upload/route.ts          # Image upload to Vercel Blob
+│   │   ├── save-to-sheets/route.ts  # Google Sheets integration
+│   │   └── ...
+│   ├── assessment/page.tsx          # Main assessment page with chatbot
+│   ├── page.tsx                     # Homepage with lead capture
+│   └── layout.tsx                   # Root layout
+├── components/
+│   ├── ai-chatbot.tsx               # Main chatbot component
+│   └── ui/                          # shadcn/ui components
+├── lib/
+│   └── utils.ts                     # Utility functions
+└── public/                          # Static assets
+
 
 ---
 
