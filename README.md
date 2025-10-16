@@ -74,7 +74,7 @@ An interactive **AI-powered pest assessment and lead generation web app** design
 
 ### Installation
 
-\`\`\`bash
+```bash
 
 # Clone the repository
 
@@ -96,13 +96,13 @@ yarn install
 # Copy environment variables
 
 cp .env.example .env.local
-\`\`\`
+```
 
 ### Environment Variables
 
 Create a `.env.local` file with the following variables:
 
-\`\`\`env
+```env
 
 # Google Gemini AI API Key
 
@@ -129,7 +129,7 @@ RESEND_API_KEY=re_your_resend_api_key_here
 # App URL (for production)
 
 NEXT_PUBLIC_APP_URL=https://your-app-url.vercel.app
-\`\`\`
+```
 
 ### Google Sheets Setup
 
@@ -149,7 +149,7 @@ NEXT_PUBLIC_APP_URL=https://your-app-url.vercel.app
 
 ### Run Development Server
 
-\`\`\`bash
+```bash
 npm run dev
 
 # or
@@ -159,51 +159,16 @@ pnpm dev
 # or
 
 yarn dev
-\`\`\`
+```
 
 Open [http://localhost:3000](http://localhost:3000) to see the app.
 
 ---
 
 ## 📁 Project Structure
-pest-assessment-tool/
-├── app/
-│   ├── api/
-│   │   ├── chat/route.ts            # AI chatbot endpoint with Gemini
-│   │   ├── upload/route.ts          # Image upload to Vercel Blob
-│   │   ├── save-to-sheets/route.ts  # Google Sheets integration
-│   │   └── ...
-│   ├── assessment/page.tsx          # Main assessment page with chatbot
-│   ├── page.tsx                     # Homepage with lead capture
-│   └── layout.tsx                   # Root layout
-├── components/
-│   ├── ai-chatbot.tsx               # Main chatbot component
-│   └── ui/                          # shadcn/ui components
-├── lib/
-│   └── utils.ts                     # Utility functions
-└── public/                          # Static assets
 
-\`\`\`
-
-pest-assessment-tool/
-├── app/
-│   ├── api/
-│   │   ├── chat/route.ts            # AI chatbot endpoint with Gemini
-│   │   ├── upload/route.ts          # Image upload to Vercel Blob
-│   │   ├── save-to-sheets/route.ts  # Google Sheets integration
-│   │   └── ...
-│   ├── assessment/page.tsx          # Main assessment page with chatbot
-│   ├── page.tsx                     # Homepage with lead capture
-│   └── layout.tsx                   # Root layout
-├── components/
-│   ├── ai-chatbot.tsx               # Main chatbot component
-│   └── ui/                          # shadcn/ui components
-├── lib/
-│   └── utils.ts                     # Utility functions
-└── public/                          # Static assets
-
-\`\`\`
 ```
+
 pest-assessment-tool/
 ├── app/
 │   ├── api/
@@ -220,6 +185,7 @@ pest-assessment-tool/
 ├── lib/
 │   └── utils.ts                     # Utility functions
 └── public/                          # Static assets
+
 ```
 
 ---
@@ -247,22 +213,22 @@ pest-assessment-tool/
 
 Edit the system prompt in `app/api/chat/route.ts`:
 
-\`\`\`typescript
+```typescript
 const systemPrompt = `You are a friendly and professional pest control assessment assistant...`
-\`\`\`
+```
 
 ### Customizing Google Sheets Columns
 
 Modify the columns in `app/api/save-to-sheets/route.ts`:
 
-\`\`\`typescript
+```typescript
 const row = [
 new Date().toISOString(),
 data.name,
 data.email,
 // Add or remove columns as needed
 ]
-\`\`\`
+```
 
 ---
 
@@ -285,18 +251,6 @@ The app saves the following data to Google Sheets:
 | Signs                  | Evidence of infestation           |
 | Severity               | AI-assessed severity level        |
 | Previous Attempts      | What user has tried               |
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License.
 
 ---
 
@@ -327,4 +281,4 @@ For questions or issues, please open an issue on GitHub or contact the maintaine
 
 ---
 
-Built with ❤️ using Next.js, Vercel AI SDK, and Google Gemini
+Built with using Next.js, Vercel AI SDK, and Google Gemini
