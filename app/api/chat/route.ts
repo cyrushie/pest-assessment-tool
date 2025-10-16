@@ -42,13 +42,13 @@ Your FIRST question should ALWAYS be: "What kind of pest are you dealing with? Y
 - Only ask for missing details — avoid repeating what you already know
 - After collecting enough information about the pest (pest type, location, frequency, duration, signs, previous attempts), provide a **severity assessment** and urge them to get professional help
 - Use phrases like:
-  - "Based on what you've told me, this appears to be a [Moderate/High/Severe] severity infestation."
+  - "Based on what you've told me, this appears to be a [Low/Moderate/High/Severe] severity infestation."
   - "I strongly recommend getting a professional inspection as soon as possible. Early treatment can prevent significant damage and save you money."
   - "Professional pest control specialists can identify the full extent of the problem and provide targeted treatment."
 - After the severity assessment, ask for their contact information:
   "To connect you with a local pest control specialist who can help, I'll need your contact information. Could you provide your name, phone number, email, city, and preferred time to be contacted?"
 
-- When you have ALL contact information (name, phone, email, city, preferred time), use the saveAssessment tool to save the data, then say: "Perfect! I've saved your information and a pest control specialist will reach out to you soon. Is there anything else you'd like to know about your pest situation?"
+- When you have ALL contact information (name, phone, email, city, preferred time), use the saveAssessment tool to save the data, then IMMEDIATELY say: "Perfect! Your consultation has been successfully scheduled. A pest control specialist will reach out to you soon at your preferred time. Is there anything else you'd like to know about your pest situation?"
 
 **Tone Examples:**
 - "Got it — small black bugs in your kitchen for about a week? Sounds like ants or small cockroaches. I can help you figure this out."
@@ -62,6 +62,7 @@ Your FIRST question should ALWAYS be: "What kind of pest are you dealing with? Y
 - Never sound like a form or survey
 - DO NOT generate structured summaries or lists of collected information
 - Focus on severity assessment and urging professional consultation
+- After calling saveAssessment tool, ALWAYS confirm the consultation has been scheduled
 ${userName ? `\n\nYou are currently speaking with ${userName}.` : ""}`;
 };
 
@@ -107,6 +108,12 @@ export async function POST(req: NextRequest) {
 
     const modelToUse = imageUrl ? "gemini-2.5-flash" : "gemini-2.5-flash";
 
+    const origin =
+      req.headers.get("origin") ||
+      req.headers.get("host") ||
+      "http://localhost:3000";
+    const baseUrl = origin.startsWith("http") ? origin : `https://${origin}`;
+
     const { text, toolCalls } = await generateText({
       model: google(modelToUse),
       messages,
@@ -132,7 +139,7 @@ export async function POST(req: NextRequest) {
             signs: z.string().describe("Signs of damage or smell"),
             severity: z
               .string()
-              .describe("Severity assessment (Moderate/High/Severe)"),
+              .describe("Severity assessment (Low/Moderate/High/Severe)"),
             previousAttempts: z
               .string()
               .describe("What the customer has tried to fix the problem"),
@@ -141,18 +148,13 @@ export async function POST(req: NextRequest) {
             console.log("[v0] Saving assessment data:", args);
 
             try {
-              const response = await fetch(
-                `${
-                  process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-                }/api/save-to-sheets`,
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify(args),
-                }
-              );
+              const response = await fetch(`${baseUrl}/api/save-to-sheets`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(args),
+              });
 
               const result = await response.json();
               console.log("[v0] Save result:", result);
@@ -170,7 +172,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       response:
         text ||
-        "Perfect! I've saved your information and a pest control specialist will reach out to you soon. Is there anything else you'd like to know about your pest situation?",
+        "I'm here to help! Could you tell me more about the pest issue you're experiencing?",
       shouldSaveToSheets: false,
     });
   } catch (error) {
