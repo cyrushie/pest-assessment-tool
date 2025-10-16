@@ -172,25 +172,22 @@ Open [http://localhost:3000](http://localhost:3000) to see the app.
 ---
 
 ## 📁 Project Structure
-
-\`\`\`
 pest-assessment-tool/
 ├── app/
-│ ├── api/
-│ │ ├── chat/route.ts # AI chatbot endpoint with Gemini
-│ │ ├── upload/route.ts # Image upload to Vercel Blob
-│ │ ├── save-to-sheets/route.ts # Google Sheets integration
-│ │ └── ...
-│ ├── assessment/page.tsx # Main assessment page with chatbot
-│ ├── page.tsx # Homepage with lead capture
-│ └── layout.tsx # Root layout
+│   ├── api/
+│   │   ├── chat/route.ts            # AI chatbot endpoint with Gemini
+│   │   ├── upload/route.ts          # Image upload to Vercel Blob
+│   │   ├── save-to-sheets/route.ts  # Google Sheets integration
+│   │   └── ...
+│   ├── assessment/page.tsx          # Main assessment page with chatbot
+│   ├── page.tsx                     # Homepage with lead capture
+│   └── layout.tsx                   # Root layout
 ├── components/
-│ ├── ai-chatbot.tsx # Main chatbot component
-│ └── ui/ # shadcn/ui components
+│   ├── ai-chatbot.tsx               # Main chatbot component
+│   └── ui/                          # shadcn/ui components
 ├── lib/
-│ └── utils.ts # Utility functions
-└── public/ # Static assets
-\`\`\`
+│   └── utils.ts                     # Utility functions
+└── public/                          # Static assets
 
 ---
 
