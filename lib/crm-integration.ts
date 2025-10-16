@@ -1,23 +1,23 @@
 interface ContactSubmission {
-  name: string;
-  email: string;
-  phone: string;
-  preferredTime?: string;
-  notes: string;
-  contactType: "call";
+  name: string
+  email: string
+  phone: string
+  preferredTime?: string
+  notes: string
+  contactType: "call"
   pestInfo: {
-    pest: string;
-    activityLevel: string;
-    confidence: string;
-  };
-  assessmentAnswers: any;
-  submittedAt: string;
+    pest: string
+    activityLevel: string
+    confidence: string
+  }
+  assessmentAnswers: any
+  submittedAt: string
 }
 
 // Mock CRM integration - replace with actual CRM API calls
 export async function submitToGoogleSheets(data: ContactSubmission) {
   // In a real implementation, this would use Google Sheets API
-  console.log("Submitting to Google Sheets:", data);
+  console.log("Submitting to Google Sheets:", data)
 
   // Example structure for Google Sheets integration:
   const sheetData = [
@@ -32,17 +32,17 @@ export async function submitToGoogleSheets(data: ContactSubmission) {
     data.pestInfo.confidence,
     data.notes,
     JSON.stringify(data.assessmentAnswers),
-  ];
+  ]
 
   // Mock API call
   return new Promise((resolve) => {
-    setTimeout(() => resolve({ success: true }), 1000);
-  });
+    setTimeout(() => resolve({ success: true }), 1000)
+  })
 }
 
 export async function submitToCRM(data: ContactSubmission) {
   // In a real implementation, this would integrate with CRM like HubSpot, Salesforce, etc.
-  console.log("Submitting to CRM:", data);
+  console.log("Submitting to CRM:", data)
 
   const crmPayload = {
     contact: {
@@ -68,13 +68,10 @@ export async function submitToCRM(data: ContactSubmission) {
       activityLevel: data.pestInfo.activityLevel,
       assessmentData: JSON.stringify(data.assessmentAnswers),
     },
-  };
+  }
 
   // Mock API call
   return new Promise((resolve) => {
-    setTimeout(
-      () => resolve({ success: true, leadId: "LEAD_" + Date.now() }),
-      1000
-    );
-  });
+    setTimeout(() => resolve({ success: true, leadId: "LEAD_" + Date.now() }), 1000)
+  })
 }

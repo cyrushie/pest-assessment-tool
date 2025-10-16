@@ -1,47 +1,39 @@
-"use client";
+"use client"
 
-import type React from "react";
-import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Phone, CheckCircle, Loader2, X } from "lucide-react";
+import type React from "react"
+import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Phone, CheckCircle, Loader2, X } from "lucide-react"
 
 interface StandaloneScheduleFormProps {
-  onClose: () => void;
+  onClose: () => void
 }
 
-export function StandaloneScheduleForm({
-  onClose,
-}: StandaloneScheduleFormProps) {
+export function StandaloneScheduleForm({ onClose }: StandaloneScheduleFormProps) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     preferredTime: "",
     notes: "",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (error) setError(null);
-  };
+    setFormData((prev) => ({ ...prev, [field]: value }))
+    if (error) setError(null)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
+    e.preventDefault()
+    setIsSubmitting(true)
+    setError(null)
 
     const submissionData = {
       ...formData,
@@ -57,7 +49,7 @@ export function StandaloneScheduleForm({
       detailedDescription: formData.notes,
       otherPests: [],
       uploadedFilesInfo: [],
-    };
+    }
 
     try {
       // Save to Google Sheets
@@ -67,12 +59,10 @@ export function StandaloneScheduleForm({
           "Content-Type": "application/json",
         },
         body: JSON.stringify(submissionData),
-      });
+      })
 
       if (!sheetsResponse.ok) {
-        console.warn(
-          "Failed to save to Google Sheets, but continuing with main flow"
-        );
+        console.warn("Failed to save to Google Sheets, but continuing with main flow")
       }
 
       // Schedule the call
@@ -82,28 +72,24 @@ export function StandaloneScheduleForm({
           "Content-Type": "application/json",
         },
         body: JSON.stringify(submissionData),
-      });
+      })
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error || "Failed to schedule consultation");
+        throw new Error(result.error || "Failed to schedule consultation")
       }
 
-      setIsSubmitted(true);
+      setIsSubmitted(true)
     } catch (error) {
-      console.error("Consultation scheduling error:", error);
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Something went wrong. Please try again."
-      );
+      console.error("Consultation scheduling error:", error)
+      setError(error instanceof Error ? error.message : "Something went wrong. Please try again.")
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
-  const isFormValid = formData.name && formData.email && formData.phone;
+  const isFormValid = formData.name && formData.email && formData.phone
 
   if (isSubmitted) {
     return (
@@ -114,12 +100,10 @@ export function StandaloneScheduleForm({
               <CheckCircle className="w-8 h-8 text-primary" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-card-foreground">
-                Thank You!
-              </h3>
+              <h3 className="text-lg font-semibold text-card-foreground">Thank You!</h3>
               <p className="text-muted-foreground mt-2">
-                We've scheduled your consultation! Our team will call you within
-                24 hours to discuss your pest concerns and treatment options.
+                We've scheduled your consultation! Our team will call you within 24 hours to discuss your pest concerns
+                and treatment options.
               </p>
             </div>
             <Button onClick={onClose} className="w-full">
@@ -128,7 +112,7 @@ export function StandaloneScheduleForm({
           </div>
         </CardContent>
       </Card>
-    );
+    )
   }
 
   return (
@@ -144,8 +128,7 @@ export function StandaloneScheduleForm({
           </Button>
         </div>
         <CardDescription>
-          Skip the assessment and speak directly with our pest control experts.
-          We'll call you within 24 hours.
+          Skip the assessment and speak directly with our pest control experts. We'll call you within 24 hours.
         </CardDescription>
       </CardHeader>
 
@@ -198,17 +181,13 @@ export function StandaloneScheduleForm({
             <Input
               id="schedule-preferredTime"
               value={formData.preferredTime}
-              onChange={(e) =>
-                handleInputChange("preferredTime", e.target.value)
-              }
+              onChange={(e) => handleInputChange("preferredTime", e.target.value)}
               placeholder="e.g., Weekday mornings, After 6 PM"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="schedule-notes">
-              Tell us about your pest concerns
-            </Label>
+            <Label htmlFor="schedule-notes">Tell us about your pest concerns</Label>
             <Textarea
               id="schedule-notes"
               value={formData.notes}
@@ -219,19 +198,10 @@ export function StandaloneScheduleForm({
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="flex-1 bg-transparent"
-            >
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1 bg-transparent">
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={!isFormValid || isSubmitting}
-              className="flex-1"
-            >
+            <Button type="submit" disabled={!isFormValid || isSubmitting} className="flex-1">
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -245,5 +215,5 @@ export function StandaloneScheduleForm({
         </form>
       </CardContent>
     </Card>
-  );
+  )
 }

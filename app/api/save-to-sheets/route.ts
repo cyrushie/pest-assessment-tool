@@ -6,65 +6,63 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
 
-    // Initialize Google Sheets authentication
+    console.log("[v0] Received data to save:", data);
+
     const serviceAccountAuth = new JWT({
       email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
       key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
       scopes: ["https://www.googleapis.com/auth/spreadsheets"],
     });
 
-    // Initialize the sheet
     const doc = new GoogleSpreadsheet(
       process.env.GOOGLE_SHEET_ID!,
       serviceAccountAuth
     );
     await doc.loadInfo();
 
-    // Get or create the worksheet
-    let sheet = doc.sheetsByIndex[0];
-
+    let sheet = doc.sheetsByTitle["Assessment Data"];
     if (!sheet) {
       sheet = await doc.addSheet({
-        title: "Pest Assessment Contacts",
+        title: "Assessment Data",
         headerValues: [
           "Timestamp",
           "Name",
           "Email",
           "Phone",
-          "Preferred Time",
-          "Notes",
-          "Contact Type",
-          "Primary Pest",
-          "Other Pests",
-          "Activity Level",
-          "Confidence",
-          "Assessment Answers",
-          "Uploaded Files",
-          "Detailed Description",
+          "City",
+          "Preferred Contact Time",
+          "Pest Type",
+          "Location",
+          "Frequency",
+          "Duration",
+          "Signs",
+          "Severity",
+          "Previous Attempts",
         ],
       });
     }
 
-    // Prepare the row data
     const rowData = {
       Timestamp: new Date().toISOString(),
       Name: data.name || "",
       Email: data.email || "",
       Phone: data.phone || "",
-      "Preferred Time": data.preferredTime || "",
-      Notes: data.notes || "",
-      "Contact Type": data.contactType || "",
-      "Primary Pest": data.pestInfo?.pest || "",
-      "Other Pests": data.otherPests ? data.otherPests.join(", ") : "",
-      "Activity Level": data.pestInfo?.activityLevel || "",
-      Confidence: data.pestInfo?.confidence || "",
-      "Assessment Answers": JSON.stringify(data.assessmentAnswers || {}),
-      "Uploaded Files": JSON.stringify(data.uploadedFilesInfo || {}),
-      "Detailed Description": data.detailedDescription || "",
+      City: data.city || "",
+      "Preferred Contact Time": data.preferredTime || "",
+      "Pest Type": data.pestType || "",
+      Location: data.location || "",
+      Frequency: data.frequency || "",
+      Duration: data.duration || "",
+      Signs: data.signs || "",
+      Severity: data.severity || "",
+      "Previous Attempts": data.previousAttempts || "",
     };
 
-    // Add the row to the sheet
+    console.log("[v0] Saving row data:", rowData);
+
     await sheet.addRow(rowData);
+
+    console.log("[v0] Successfully saved to Google Sheets");
 
     return NextResponse.json({
       success: true,

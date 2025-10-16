@@ -1,182 +1,177 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import {
-  HumanMessage,
-  SystemMessage,
-  AIMessage,
-} from "@langchain/core/messages";
+import { generateText, tool } from "ai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
-const model = new ChatGoogleGenerativeAI({
-  model: "gemini-2.5-flash",
-  apiKey: process.env.GOOGLE_GEMINI_API_KEY,
-  temperature: 0.7,
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
 });
 
-const getSystemPrompt = (
-  userName?: string,
-  assessmentResults?: {
-    primaryPest: string;
-    severity: string;
-    selectedPests: string[];
-  }
-) => {
-  let basePrompt = `You are a helpful pest assessment assistant for a pest control web tool${
-    userName ? ` speaking with ${userName}` : ""
-  }. Your role is to:
+const getSystemPrompt = (userName?: string) => {
+  return `You are an AI Pest Assessment Assistant designed to help homeowners identify pests, assess the severity of infestations, and recommend professional inspection services.
 
-1. Help users understand the pest assessment process
-2. Answer questions about different types of pests (cockroaches, rodents, bed bugs, ants, termites, etc.)
-3. Explain what different signs and symptoms might indicate
-4. Guide users through the assessment questions
-5. Provide general pest identification advice
-6. Encourage users to complete the assessment and schedule a consultation for professional help
+Your tone should be friendly, conversational, and reassuring — never pushy or robotic. You should sound like a knowledgeable, empathetic assistant who genuinely wants to help.
 
-Key information about the tool:
-- This is a pest assessment tool that helps identify pest problems
-- Users answer questions about pest signs, locations, behaviors, and frequency
-- After completing the assessment, users receive personalized recommendations
-- Users can schedule a free consultation with pest control professionals
-- The assessment covers common household pests like cockroaches, rodents, bed bugs, ants, and termites
+**Main Goals:**
+1. Help users identify possible pests through conversation or image analysis
+2. Estimate the severity of the infestation (Low / Moderate / High / Severe)
+3. Offer helpful advice or prevention tips
+4. Collect contact information so they can schedule a consultation with a pest control specialist
+5. Make the process feel natural, not like filling a form
 
-Guidelines:
-- Be friendly, helpful, and professional
-${
-  userName
-    ? `- Address the user as ${userName} when appropriate to create a personal connection`
-    : ""
-}
-- Keep responses concise and easy to understand
-- Don't diagnose specific pest problems - encourage users to complete the assessment
-- Suggest scheduling a consultation for serious or uncertain cases
-- Focus on education and guidance rather than treatment advice
-- If asked about pricing or specific services, encourage them to schedule a consultation
+**IMPORTANT - First Question:**
+Your FIRST question should ALWAYS be: "What kind of pest are you dealing with? You can describe it to me, or if you'd like, you can upload a photo and I'll help identify it for you."
 
-Remember: You're here to assist with the assessment process, not to replace professional pest control services.`;
+**Information to Collect (in order):**
+1. **Pest type** (from description or image identification) - ALWAYS ASK THIS FIRST
+2. Location of problem (e.g., kitchen, bathroom, outdoors)
+3. Duration of the problem
+4. Frequency (how often they see the pests)
+5. Signs of damage or smell
+6. Attempts to fix it
+7. Contact details:
+   - Name
+   - Phone
+   - Email
+   - City or area
+   - Preferred time to be contacted
 
-  if (assessmentResults) {
-    basePrompt += `
+**Behavior Rules:**
+- ALWAYS start by asking about the pest type and mentioning they can upload a photo
+- If the user describes the pest, extract structured details automatically (pest type, duration, location, etc.)
+- Only ask for missing details — avoid repeating what you already know
+- After collecting enough information about the pest (pest type, location, frequency, duration, signs, previous attempts), provide a **severity assessment** and urge them to get professional help
+- Use phrases like:
+  - "Based on what you've told me, this appears to be a [Moderate/High/Severe] severity infestation."
+  - "I strongly recommend getting a professional inspection as soon as possible. Early treatment can prevent significant damage and save you money."
+  - "Professional pest control specialists can identify the full extent of the problem and provide targeted treatment."
+- After the severity assessment, ask for their contact information:
+  "To connect you with a local pest control specialist who can help, I'll need your contact information. Could you provide your name, phone number, email, city, and preferred time to be contacted?"
 
-IMPORTANT - ASSESSMENT RESULTS CONTEXT:
-The user has completed their assessment with the following results:
-- Primary Pest: ${assessmentResults.primaryPest}
-- Severity Level: ${assessmentResults.severity}
-${
-  assessmentResults.selectedPests.length > 1
-    ? `- Other Pests Identified: ${assessmentResults.selectedPests
-        .filter((p) => p !== assessmentResults.primaryPest)
-        .join(", ")}`
-    : ""
-}
+- When you have ALL contact information (name, phone, email, city, preferred time), use the saveAssessment tool to save the data, then say: "Perfect! I've saved your information and a pest control specialist will reach out to you soon. Is there anything else you'd like to know about your pest situation?"
 
-Based on this severity level:
-${
-  assessmentResults.severity === "Severe"
-    ? "- This is a SEVERE infestation requiring IMMEDIATE professional intervention\n- Emphasize the urgency and potential risks of delaying treatment\n- Strongly encourage them to schedule a consultation immediately\n- Mention potential property damage and health risks"
-    : ""
-}
-${
-  assessmentResults.severity === "High"
-    ? "- This is a HIGH severity situation requiring prompt attention\n- Recommend professional treatment to prevent escalation\n- Encourage them to schedule a consultation soon\n- Explain how the situation could worsen without intervention"
-    : ""
-}
-${
-  assessmentResults.severity === "Moderate"
-    ? "- This is a MODERATE situation that should be addressed\n- Gently encourage professional consultation to prevent escalation\n- Explain preventive benefits of early intervention\n- Reassure them that acting now can prevent bigger problems"
-    : ""
-}
+**Tone Examples:**
+- "Got it — small black bugs in your kitchen for about a week? Sounds like ants or small cockroaches. I can help you figure this out."
+- "That sounds frustrating! Don't worry — you caught it early."
+- "Early treatment usually saves 60% of removal costs — let me help you get connected with an expert."
 
-When responding to the user:
-- Reference their specific pest problem (${
-      assessmentResults.primaryPest
-    }) when relevant
-- Tailor your urgency level to match the severity (${
-      assessmentResults.severity
-    })
-- Answer questions about their assessment results
-- Provide context about what their severity level means
-- Encourage them to schedule a consultation with appropriate urgency`;
-  }
-
-  return basePrompt;
+**Important:**
+- Keep responses concise (2-4 sentences max)
+- Ask ONE question at a time
+- Be warm and reassuring
+- Never sound like a form or survey
+- DO NOT generate structured summaries or lists of collected information
+- Focus on severity assessment and urging professional consultation
+${userName ? `\n\nYou are currently speaking with ${userName}.` : ""}`;
 };
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, history, userName, assessmentResults } = await req.json();
+    const { message, history, userName, imageUrl } = await req.json();
 
     if (!message || typeof message !== "string") {
       return NextResponse.json({ error: "Invalid message" }, { status: 400 });
     }
 
-    if (message === "generate_initial_results_message" && assessmentResults) {
-      const { primaryPest, severity, selectedPests } = assessmentResults;
-
-      let initialMessage = "";
-
-      if (severity === "Severe") {
-        initialMessage = `${
-          userName ? `${userName}, ` : ""
-        }I've reviewed your assessment results and I need to be direct with you - your ${primaryPest} situation is **severe** and requires **immediate professional attention**. 🚨
-
-This level of infestation can lead to:
-- Significant property damage
-- Health risks for you and your family
-- Rapidly increasing treatment costs if delayed
-
-**I strongly urge you to schedule a consultation right away.** The professionals can provide emergency service to address this urgent situation.
-
-Do you have any questions about your assessment results or what to expect next?`;
-      } else if (severity === "High") {
-        initialMessage = `${
-          userName ? `${userName}, ` : ""
-        }I've reviewed your assessment results, and your ${primaryPest} problem is at a **high severity level**. ⚠️
-
-This means the situation is escalating and needs prompt attention to prevent it from becoming a serious infestation. Professional treatment is strongly recommended to:
-- Stop the problem from spreading
-- Prevent potential damage
-- Save you from higher costs later
-
-**I recommend scheduling a consultation soon** to get expert help before the situation worsens.
-
-Feel free to ask me any questions about your assessment or what you should do next!`;
-      } else {
-        initialMessage = `${
-          userName ? `${userName}, ` : ""
-        }I've reviewed your assessment results. You have a **moderate** ${primaryPest} situation. ⚡
-
-The good news is that you've caught this early! Acting now can prevent a minor issue from becoming a major infestation. Professional consultation can help you:
-- Address the problem before it escalates
-- Get expert prevention advice
-- Save time and money in the long run
-
-**I'd encourage you to consider scheduling a consultation** to get professional guidance tailored to your specific situation.
-
-If you have any questions about your assessment results or need clarification on anything, I'm here to help!`;
-      }
-
-      return NextResponse.json({ response: initialMessage });
-    }
-
-    const messages = [
-      new SystemMessage(getSystemPrompt(userName, assessmentResults)),
+    const messages: Array<{
+      role: "system" | "user" | "assistant";
+      content: string | any;
+    }> = [
+      {
+        role: "system",
+        content: getSystemPrompt(userName),
+      },
     ];
 
     if (history && Array.isArray(history)) {
       for (const msg of history) {
         if (msg.sender === "user") {
-          messages.push(new HumanMessage(msg.content));
+          messages.push({ role: "user", content: msg.content });
         } else if (msg.sender === "bot") {
-          messages.push(new AIMessage(msg.content));
+          messages.push({ role: "assistant", content: msg.content });
         }
       }
     }
 
-    messages.push(new HumanMessage(message));
+    if (imageUrl) {
+      messages.push({
+        role: "user",
+        content: [
+          { type: "text", text: message },
+          { type: "image", image: imageUrl },
+        ],
+      });
+    } else {
+      messages.push({ role: "user", content: message });
+    }
 
-    const response = await model.invoke(messages);
+    const modelToUse = imageUrl ? "gemini-2.5-flash" : "gemini-2.5-flash";
+
+    const { text, toolCalls } = await generateText({
+      model: google(modelToUse),
+      messages,
+      temperature: 0.7,
+      tools: {
+        saveAssessment: tool({
+          description:
+            "Save the pest assessment data to Google Sheets. Call this when you have collected ALL contact information (name, phone, email, city, preferred time).",
+          inputSchema: z.object({
+            name: z.string().describe("Customer's full name"),
+            phone: z.string().describe("Customer's phone number"),
+            email: z.string().describe("Customer's email address"),
+            city: z.string().describe("Customer's city or area"),
+            preferredTime: z
+              .string()
+              .describe("Preferred time to be contacted"),
+            pestType: z.string().describe("Type of pest identified"),
+            location: z.string().describe("Location of the pest problem"),
+            frequency: z.string().describe("How often the pests are seen"),
+            duration: z
+              .string()
+              .describe("How long the problem has been happening"),
+            signs: z.string().describe("Signs of damage or smell"),
+            severity: z
+              .string()
+              .describe("Severity assessment (Moderate/High/Severe)"),
+            previousAttempts: z
+              .string()
+              .describe("What the customer has tried to fix the problem"),
+          }),
+          execute: async (args) => {
+            console.log("[v0] Saving assessment data:", args);
+
+            try {
+              const response = await fetch(
+                `${
+                  process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+                }/api/save-to-sheets`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(args),
+                }
+              );
+
+              const result = await response.json();
+              console.log("[v0] Save result:", result);
+
+              return { success: true, message: "Data saved successfully" };
+            } catch (error) {
+              console.error("[v0] Error saving to sheets:", error);
+              return { success: false, message: "Failed to save data" };
+            }
+          },
+        }),
+      },
+    });
 
     return NextResponse.json({
-      response: response.content,
+      response:
+        text ||
+        "Perfect! I've saved your information and a pest control specialist will reach out to you soon. Is there anything else you'd like to know about your pest situation?",
+      shouldSaveToSheets: false,
     });
   } catch (error) {
     console.error("Chat API error:", error);

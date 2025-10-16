@@ -1,22 +1,22 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server"
 
 interface CallRequest {
-  name: string;
-  phone: string;
-  email: string;
-  preferredTime?: string;
+  name: string
+  phone: string
+  email: string
+  preferredTime?: string
   pestInfo: {
-    pest: string;
-    activityLevel: string;
-    confidence: string;
-  };
-  notes?: string;
-  assessmentAnswers: any;
+    pest: string
+    activityLevel: string
+    confidence: string
+  }
+  notes?: string
+  assessmentAnswers: any
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body: CallRequest = await request.json();
+    const body: CallRequest = await request.json()
 
     // Create a calendar event or CRM task for the sales team
     const callSchedule = {
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       scheduledFor: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
       status: "pending",
       createdAt: new Date().toISOString(),
-    };
+    }
 
     // In a real implementation, this would:
     // 1. Create a calendar event in Google Calendar or Outlook
@@ -41,27 +41,24 @@ export async function POST(request: NextRequest) {
     // 3. Send notification to sales team
     // 4. Optionally send confirmation email to customer
 
-    console.log("Call scheduled:", callSchedule);
+    console.log("Call scheduled:", callSchedule)
 
     // Mock calendar/CRM integration
-    await mockCalendarIntegration(callSchedule);
-    await mockCRMIntegration(callSchedule, body.assessmentAnswers);
+    await mockCalendarIntegration(callSchedule)
+    await mockCRMIntegration(callSchedule, body.assessmentAnswers)
 
     // Send confirmation email (mock)
-    await mockSendConfirmationEmail(body);
+    await mockSendConfirmationEmail(body)
 
     return NextResponse.json({
       success: true,
       callId: callSchedule.id,
       scheduledFor: callSchedule.scheduledFor,
       status: "scheduled",
-    });
+    })
   } catch (error) {
-    console.error("Call scheduling error:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to schedule call" },
-      { status: 500 }
-    );
+    console.error("Call scheduling error:", error)
+    return NextResponse.json({ success: false, error: "Failed to schedule call" }, { status: 500 })
   }
 }
 
@@ -73,9 +70,9 @@ async function mockCalendarIntegration(callData: any) {
     attendees: [callData.customerEmail],
     start: callData.scheduledFor,
     duration: 30, // minutes
-  });
+  })
 
-  return new Promise((resolve) => setTimeout(resolve, 500));
+  return new Promise((resolve) => setTimeout(resolve, 500))
 }
 
 async function mockCRMIntegration(callData: any, assessmentData: any) {
@@ -91,18 +88,18 @@ async function mockCRMIntegration(callData: any, assessmentData: any) {
       activityLevel: callData.activityLevel,
       assessmentData: JSON.stringify(assessmentData),
     },
-  });
+  })
 
-  return new Promise((resolve) => setTimeout(resolve, 500));
+  return new Promise((resolve) => setTimeout(resolve, 500))
 }
 
 async function mockSendConfirmationEmail(customerData: any) {
   // In real implementation, use email service like SendGrid, Mailgun, etc.
-  console.log("Sending confirmation email to:", customerData.email);
+  console.log("Sending confirmation email to:", customerData.email)
   console.log("Email content:", {
     subject: "Pest Consultation Scheduled - We'll Call You Soon!",
     body: `Hi ${customerData.name}, we've received your pest assessment and will call you within 24 hours to discuss treatment options for your ${customerData.pestInfo.pest} issue.`,
-  });
+  })
 
-  return new Promise((resolve) => setTimeout(resolve, 300));
+  return new Promise((resolve) => setTimeout(resolve, 300))
 }

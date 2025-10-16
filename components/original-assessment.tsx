@@ -1,42 +1,34 @@
-"use client";
+"use client"
 
-import type React from "react";
+import type React from "react"
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  CheckCircle,
-  Bug,
-  Phone,
-  Upload,
-  X,
-  AlertTriangle,
-} from "lucide-react";
-import { AIChatbot } from "@/components/ai-chatbot";
-import { ContactFormModal } from "@/components/contact-form-modal";
+import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { Badge } from "@/components/ui/badge"
+import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { CheckCircle, Bug, Phone, Upload, X, AlertTriangle } from "lucide-react"
+import { AIChatbot } from "@/components/ai-chatbot"
+import { ContactFormModal } from "@/components/contact-form-modal"
 
 interface Question {
-  id: number;
-  question: string;
-  options: { value: string; label: string }[];
-  multiple?: boolean;
+  id: number
+  question: string
+  options: { value: string; label: string }[]
+  multiple?: boolean
 }
 
 interface UserAnswers {
-  [key: number]: string | string[];
+  [key: number]: string | string[]
 }
 
 const questions: Question[] = [
   {
     id: 1,
-    question:
-      "Have you noticed pests or signs of pests in or around your home/business?",
+    question: "Have you noticed pests or signs of pests in or around your home/business?",
     options: [
       { value: "seen_them", label: "Yes, I've seen them" },
       {
@@ -48,8 +40,7 @@ const questions: Question[] = [
   },
   {
     id: 2,
-    question:
-      "Where have you noticed the pest activity? (Select all that apply)",
+    question: "Where have you noticed the pest activity? (Select all that apply)",
     options: [
       { value: "kitchen", label: "Kitchen" },
       { value: "attic", label: "Attic/Crawl Space" },
@@ -100,155 +91,151 @@ const questions: Question[] = [
       { value: "frequently", label: "Frequently (every day or night)" },
     ],
   },
-];
+]
 
 function identifyPest(answers: UserAnswers) {
-  const locations = (answers[2] as string[]) || [];
-  const behaviors = (answers[3] as string) || "";
-  const signs = (answers[4] as string[]) || [];
-  const frequency = (answers[5] as string) || "";
+  const locations = (answers[2] as string[]) || []
+  const behaviors = (answers[3] as string) || ""
+  const signs = (answers[4] as string[]) || []
+  const frequency = (answers[5] as string) || ""
 
-  const activityLevel = getActivityLevel(answers);
+  const activityLevel = getActivityLevel(answers)
 
   // Simple pest identification logic
   if (signs.includes("bites") && locations.includes("bedroom")) {
-    return { pest: "Bed Bugs", activityLevel, confidence: "High" };
+    return { pest: "Bed Bugs", activityLevel, confidence: "High" }
   }
   if (signs.includes("droppings") && behaviors === "scurrying") {
-    return { pest: "Rodents (Mice/Rats)", activityLevel, confidence: "High" };
+    return { pest: "Rodents (Mice/Rats)", activityLevel, confidence: "High" }
   }
   if (signs.includes("odors") && locations.includes("kitchen")) {
-    return { pest: "Cockroaches", activityLevel, confidence: "Medium" };
+    return { pest: "Cockroaches", activityLevel, confidence: "Medium" }
   }
   if (behaviors === "flying" && locations.includes("kitchen")) {
-    return { pest: "Fruit Flies/Gnats", activityLevel, confidence: "Medium" };
+    return { pest: "Fruit Flies/Gnats", activityLevel, confidence: "Medium" }
   }
-  return { pest: "General Pest Activity", activityLevel, confidence: "Low" };
+  return { pest: "General Pest Activity", activityLevel, confidence: "Low" }
 }
 
 function getActivityLevel(answers: UserAnswers) {
-  const frequency = (answers[5] as string) || "";
-  if (frequency === "frequently") return "Severe";
-  if (frequency === "occasionally") return "High";
-  return "Moderate";
+  const frequency = (answers[5] as string) || ""
+  if (frequency === "frequently") return "Severe"
+  if (frequency === "occasionally") return "High"
+  return "Moderate"
 }
 
 function handleContactClick(setShowContactForm: any, setContactType: any) {
-  setContactType("call");
-  setShowContactForm(true);
+  setContactType("call")
+  setShowContactForm(true)
 }
 
 export default function PestAssessmentTool() {
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<UserAnswers>({});
-  const [showResults, setShowResults] = useState(false);
-  const [showContactForm, setShowContactForm] = useState(false);
-  const [contactType, setContactType] = useState<"call">("call");
-  const [detailedDescription, setDetailedDescription] = useState("");
-  const [uploadedFiles, setUploadedFiles] = useState<
-    { url: string; filename: string; size: number; type: string }[]
-  >([]);
-  const [isUploading, setIsUploading] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState(0)
+  const [answers, setAnswers] = useState<UserAnswers>({})
+  const [showResults, setShowResults] = useState(false)
+  const [showContactForm, setShowContactForm] = useState(false)
+  const [contactType, setContactType] = useState<"call">("call")
+  const [detailedDescription, setDetailedDescription] = useState("")
+  const [uploadedFiles, setUploadedFiles] = useState<{ url: string; filename: string; size: number; type: string }[]>(
+    [],
+  )
+  const [isUploading, setIsUploading] = useState(false)
 
   const handleAnswer = (questionId: number, value: string | string[]) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: value }));
-  };
+    setAnswers((prev) => ({ ...prev, [questionId]: value }))
+  }
 
   const nextQuestion = () => {
     if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion((prev) => prev + 1);
+      setCurrentQuestion((prev) => prev + 1)
     } else {
-      setShowResults(true);
+      setShowResults(true)
     }
-  };
+  }
 
   const prevQuestion = () => {
     if (currentQuestion > 0) {
-      setCurrentQuestion((prev) => prev - 1);
+      setCurrentQuestion((prev) => prev - 1)
     }
-  };
+  }
 
-  const progress = ((currentQuestion + 1) / questions.length) * 100;
+  const progress = ((currentQuestion + 1) / questions.length) * 100
 
   const getCurrentAnswer = () => {
-    return answers[questions[currentQuestion].id];
-  };
+    return answers[questions[currentQuestion].id]
+  }
 
   const isAnswered = () => {
-    const answer = getCurrentAnswer();
+    const answer = getCurrentAnswer()
     if (questions[currentQuestion].multiple) {
-      return Array.isArray(answer) && answer.length > 0;
+      return Array.isArray(answer) && answer.length > 0
     }
-    return answer !== undefined;
-  };
+    return answer !== undefined
+  }
 
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const files = Array.from(event.target.files || []);
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || [])
 
-    if (files.length === 0) return;
+    if (files.length === 0) return
 
-    setIsUploading(true);
+    setIsUploading(true)
 
     try {
       const uploadPromises = files.map(async (file) => {
-        const maxSize = 20 * 1024 * 1024; // 20MB in bytes
-        const validTypes = ["image/", "video/"];
+        const maxSize = 20 * 1024 * 1024 // 20MB in bytes
+        const validTypes = ["image/", "video/"]
 
         if (file.size > maxSize) {
-          alert(`File "${file.name}" is too large. Maximum size is 20MB.`);
-          return null;
+          alert(`File "${file.name}" is too large. Maximum size is 20MB.`)
+          return null
         }
 
         if (!validTypes.some((type) => file.type.startsWith(type))) {
-          alert(`File "${file.name}" is not a valid image or video file.`);
-          return null;
+          alert(`File "${file.name}" is not a valid image or video file.`)
+          return null
         }
 
-        const formData = new FormData();
-        formData.append("file", file);
+        const formData = new FormData()
+        formData.append("file", file)
 
         const response = await fetch("/api/upload", {
           method: "POST",
           body: formData,
-        });
+        })
 
         if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || "Upload failed");
+          const error = await response.json()
+          throw new Error(error.error || "Upload failed")
         }
 
-        return await response.json();
-      });
+        return await response.json()
+      })
 
-      const results = await Promise.all(uploadPromises);
-      const successfulUploads = results.filter((result) => result !== null);
+      const results = await Promise.all(uploadPromises)
+      const successfulUploads = results.filter((result) => result !== null)
 
-      setUploadedFiles((prev) => [...prev, ...successfulUploads]);
+      setUploadedFiles((prev) => [...prev, ...successfulUploads])
     } catch (error) {
-      console.error("Upload error:", error);
-      alert("Failed to upload files. Please try again.");
+      console.error("Upload error:", error)
+      alert("Failed to upload files. Please try again.")
     } finally {
-      setIsUploading(false);
+      setIsUploading(false)
       // Reset the input
-      event.target.value = "";
+      event.target.value = ""
     }
-  };
+  }
 
   const removeFile = (index: number) => {
-    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
-  };
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index))
+  }
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return (
-      Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
-    );
-  };
+    if (bytes === 0) return "0 Bytes"
+    const k = 1024
+    const sizes = ["Bytes", "KB", "MB", "GB"]
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+  }
 
   if (showResults) {
     return (
@@ -277,10 +264,10 @@ export default function PestAssessmentTool() {
           uploadedFiles={uploadedFiles}
         />
       </div>
-    );
+    )
   }
 
-  const question = questions[currentQuestion];
+  const question = questions[currentQuestion]
 
   return (
     <div className="min-h-screen bg-background">
@@ -292,12 +279,8 @@ export default function PestAssessmentTool() {
               <Bug className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-card-foreground">
-                Pest Assessment Tool
-              </h1>
-              <p className="text-muted-foreground">
-                Professional pest identification and consultation
-              </p>
+              <h1 className="text-2xl font-bold text-card-foreground">Pest Assessment Tool</h1>
+              <p className="text-muted-foreground">Professional pest identification and consultation</p>
             </div>
           </div>
         </div>
@@ -310,9 +293,7 @@ export default function PestAssessmentTool() {
             <span className="text-sm font-medium text-foreground">
               Question {currentQuestion + 1} of {questions.length}
             </span>
-            <span className="text-sm text-muted-foreground">
-              {Math.round(progress)}% Complete
-            </span>
+            <span className="text-sm text-muted-foreground">{Math.round(progress)}% Complete</span>
           </div>
           <Progress value={progress} className="h-2" />
         </div>
@@ -320,9 +301,7 @@ export default function PestAssessmentTool() {
         {/* Question Card */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="text-xl text-card-foreground">
-              {question.question}
-            </CardTitle>
+            <CardTitle className="text-xl text-card-foreground">{question.question}</CardTitle>
             {question.multiple && (
               <Badge variant="secondary" className="w-fit">
                 Select all that apply
@@ -332,9 +311,8 @@ export default function PestAssessmentTool() {
           <CardContent className="space-y-3">
             {question.options.map((option) => {
               const isSelected = question.multiple
-                ? Array.isArray(getCurrentAnswer()) &&
-                  (getCurrentAnswer() as string[]).includes(option.value)
-                : getCurrentAnswer() === option.value;
+                ? Array.isArray(getCurrentAnswer()) && (getCurrentAnswer() as string[]).includes(option.value)
+                : getCurrentAnswer() === option.value
 
               return (
                 <Button
@@ -343,14 +321,13 @@ export default function PestAssessmentTool() {
                   className="w-full justify-start text-left h-auto p-4"
                   onClick={() => {
                     if (question.multiple) {
-                      const currentAnswers =
-                        (getCurrentAnswer() as string[]) || [];
+                      const currentAnswers = (getCurrentAnswer() as string[]) || []
                       const newAnswers = isSelected
                         ? currentAnswers.filter((a) => a !== option.value)
-                        : [...currentAnswers, option.value];
-                      handleAnswer(question.id, newAnswers);
+                        : [...currentAnswers, option.value]
+                      handleAnswer(question.id, newAnswers)
                     } else {
-                      handleAnswer(question.id, option.value);
+                      handleAnswer(question.id, option.value)
                     }
                   }}
                 >
@@ -359,25 +336,17 @@ export default function PestAssessmentTool() {
                     <span>{option.label}</span>
                   </div>
                 </Button>
-              );
+              )
             })}
           </CardContent>
         </Card>
 
         {/* Navigation */}
         <div className="flex justify-between">
-          <Button
-            variant="outline"
-            onClick={prevQuestion}
-            disabled={currentQuestion === 0}
-          >
+          <Button variant="outline" onClick={prevQuestion} disabled={currentQuestion === 0}>
             Previous
           </Button>
-          <Button
-            onClick={nextQuestion}
-            disabled={!isAnswered()}
-            className="min-w-24"
-          >
+          <Button onClick={nextQuestion} disabled={!isAnswered()} className="min-w-24">
             {currentQuestion === questions.length - 1 ? "Get Results" : "Next"}
           </Button>
         </div>
@@ -388,12 +357,12 @@ export default function PestAssessmentTool() {
         answers={answers}
         onSuggestAction={(action) => {
           if (action === "next" && isAnswered()) {
-            nextQuestion();
+            nextQuestion()
           }
         }}
       />
     </div>
-  );
+  )
 }
 
 function ResultsPage({
@@ -409,26 +378,26 @@ function ResultsPage({
   removeFile,
   isUploading,
 }: {
-  answers: UserAnswers;
-  setShowContactForm: any;
-  setContactType: any;
-  detailedDescription: string;
-  setDetailedDescription: any;
+  answers: UserAnswers
+  setShowContactForm: any
+  setContactType: any
+  detailedDescription: string
+  setDetailedDescription: any
   uploadedFiles: {
-    url: string;
-    filename: string;
-    size: number;
-    type: string;
-  }[];
-  setUploadedFiles: any;
-  handleFileUpload: any;
-  formatFileSize: any;
-  removeFile: any;
-  isUploading: boolean;
+    url: string
+    filename: string
+    size: number
+    type: string
+  }[]
+  setUploadedFiles: any
+  handleFileUpload: any
+  formatFileSize: any
+  removeFile: any
+  isUploading: boolean
 }) {
-  const pestResult = identifyPest(answers);
-  const activityLevel = getActivityLevel(answers);
-  const recommendation = getRecommendation(activityLevel);
+  const pestResult = identifyPest(answers)
+  const activityLevel = getActivityLevel(answers)
+  const recommendation = getRecommendation(activityLevel)
 
   const getThemeColors = (level: string) => {
     switch (level) {
@@ -442,7 +411,7 @@ function ResultsPage({
           headerBg: "bg-gradient-to-r from-red-600 to-red-700",
           pulse: "animate-pulse",
           glow: "shadow-lg shadow-red-500/25",
-        };
+        }
       case "High":
         return {
           primary: "bg-orange-600 hover:bg-orange-700",
@@ -453,7 +422,7 @@ function ResultsPage({
           headerBg: "bg-gradient-to-r from-orange-600 to-orange-700",
           pulse: "",
           glow: "shadow-md shadow-orange-500/20",
-        };
+        }
       default: // Moderate
         return {
           primary: "bg-yellow-600 hover:bg-yellow-700",
@@ -464,11 +433,11 @@ function ResultsPage({
           headerBg: "bg-gradient-to-r from-yellow-600 to-yellow-700",
           pulse: "",
           glow: "shadow-sm shadow-yellow-500/15",
-        };
+        }
     }
-  };
+  }
 
-  const themeColors = getThemeColors(activityLevel);
+  const themeColors = getThemeColors(activityLevel)
 
   function getRecommendation(activityLevel: string) {
     switch (activityLevel) {
@@ -477,19 +446,19 @@ function ResultsPage({
           message:
             "🚨 URGENT: You have a severe pest infestation that requires immediate professional intervention. Delaying treatment could lead to significant property damage and health risks.",
           action: "immediate",
-        };
+        }
       case "High":
         return {
           message:
             "⚠️ WARNING: Your pest problem is escalating and needs prompt attention. Professional treatment is strongly recommended to prevent further spread.",
           action: "recommended",
-        };
+        }
       default: // Moderate
         return {
           message:
             "⚡ CAUTION: Early signs of pest activity detected. Acting now can prevent a minor issue from becoming a major infestation.",
           action: "optional",
-        };
+        }
     }
   }
 
@@ -498,18 +467,12 @@ function ResultsPage({
       <header className={`border-b border-border ${themeColors.headerBg}`}>
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-3">
-            <div
-              className={`flex items-center justify-center w-10 h-10 bg-white/20 rounded-lg ${themeColors.pulse}`}
-            >
+            <div className={`flex items-center justify-center w-10 h-10 bg-white/20 rounded-lg ${themeColors.pulse}`}>
               <Bug className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">
-                Assessment Results
-              </h1>
-              <p className="text-white/90">
-                Your personalized pest identification and recommendations
-              </p>
+              <h1 className="text-2xl font-bold text-white">Assessment Results</h1>
+              <p className="text-white/90">Your personalized pest identification and recommendations</p>
             </div>
             {activityLevel === "Severe" && (
               <div className="ml-auto">
@@ -576,36 +539,24 @@ function ResultsPage({
         <Card
           className={`mb-6 ${themeColors.accent} border-2`}
           style={{
-            borderColor:
-              activityLevel === "Severe"
-                ? "#dc2626"
-                : activityLevel === "High"
-                ? "#ea580c"
-                : "#d97706",
+            borderColor: activityLevel === "Severe" ? "#dc2626" : activityLevel === "High" ? "#ea580c" : "#d97706",
           }}
         >
           <CardHeader>
-            <CardTitle className={themeColors.accentText}>
-              Our Professional Recommendation
-            </CardTitle>
+            <CardTitle className={themeColors.accentText}>Our Professional Recommendation</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`${themeColors.accentText} mb-4 font-medium text-lg`}>
-              {recommendation.message}
-            </p>
+            <p className={`${themeColors.accentText} mb-4 font-medium text-lg`}>{recommendation.message}</p>
 
             {recommendation.action === "immediate" && (
               <div className="bg-red-100 border-2 border-red-300 rounded-lg p-4 mb-4 animate-pulse">
                 <div className="flex items-center gap-2 mb-2">
                   <AlertTriangle className="w-5 h-5 text-red-600" />
-                  <p className="text-lg font-bold text-red-600">
-                    IMMEDIATE ACTION REQUIRED
-                  </p>
+                  <p className="text-lg font-bold text-red-600">IMMEDIATE ACTION REQUIRED</p>
                 </div>
                 <p className="text-red-700 font-medium">
-                  🔥 Severe pest activity detected. Every hour of delay
-                  increases damage and treatment costs. Professional
-                  intervention needed NOW!
+                  🔥 Severe pest activity detected. Every hour of delay increases damage and treatment costs.
+                  Professional intervention needed NOW!
                 </p>
               </div>
             )}
@@ -614,13 +565,10 @@ function ResultsPage({
               <div className="bg-orange-100 border-2 border-orange-300 rounded-lg p-4 mb-4">
                 <div className="flex items-center gap-2 mb-2">
                   <AlertTriangle className="w-5 h-5 text-orange-600" />
-                  <p className="text-lg font-bold text-orange-600">
-                    PROMPT ACTION RECOMMENDED
-                  </p>
+                  <p className="text-lg font-bold text-orange-600">PROMPT ACTION RECOMMENDED</p>
                 </div>
                 <p className="text-orange-700 font-medium">
-                  ⚠️ Your pest problem is escalating. Don't let it become a
-                  costly emergency - act now!
+                  ⚠️ Your pest problem is escalating. Don't let it become a costly emergency - act now!
                 </p>
               </div>
             )}
@@ -632,8 +580,7 @@ function ResultsPage({
           <CardHeader>
             <CardTitle>Describe Your Situation</CardTitle>
             <p className="text-muted-foreground">
-              Provide additional details about your pest situation to help our
-              experts better understand your needs
+              Provide additional details about your pest situation to help our experts better understand your needs
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -649,9 +596,7 @@ function ResultsPage({
             </div>
 
             <div>
-              <Label htmlFor="file-upload">
-                Upload Images or Videos (Max 20MB each)
-              </Label>
+              <Label htmlFor="file-upload">Upload Images or Videos (Max 20MB each)</Label>
               <div className="mt-2">
                 <Input
                   id="file-upload"
@@ -664,9 +609,7 @@ function ResultsPage({
                 />
                 <Button
                   variant="outline"
-                  onClick={() =>
-                    document.getElementById("file-upload")?.click()
-                  }
+                  onClick={() => document.getElementById("file-upload")?.click()}
                   className="w-full justify-center"
                   disabled={isUploading}
                 >
@@ -679,25 +622,14 @@ function ResultsPage({
                 <div className="mt-4 space-y-2">
                   <p className="text-sm font-medium">Uploaded Files:</p>
                   {uploadedFiles.map((file, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-2 bg-muted rounded-lg"
-                    >
+                    <div key={index} className="flex items-center justify-between p-2 bg-muted rounded-lg">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">
-                          {file.filename}
-                        </p>
+                        <p className="text-sm font-medium truncate">{file.filename}</p>
                         <p className="text-xs text-muted-foreground">
-                          {formatFileSize(file.size)} •{" "}
-                          {file.type.startsWith("image/") ? "Image" : "Video"}
+                          {formatFileSize(file.size)} • {file.type.startsWith("image/") ? "Image" : "Video"}
                         </p>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeFile(index)}
-                        className="ml-2 h-8 w-8 p-0"
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => removeFile(index)} className="ml-2 h-8 w-8 p-0">
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
@@ -711,44 +643,33 @@ function ResultsPage({
         <Card
           className={`${themeColors.glow} border-2`}
           style={{
-            borderColor:
-              activityLevel === "Severe"
-                ? "#dc2626"
-                : activityLevel === "High"
-                ? "#ea580c"
-                : "#d97706",
+            borderColor: activityLevel === "Severe" ? "#dc2626" : activityLevel === "High" ? "#ea580c" : "#d97706",
           }}
         >
           <CardHeader>
-            <CardTitle className="text-xl">
-              🎯 Get Your FREE Professional Consultation
-            </CardTitle>
+            <CardTitle className="text-xl">🎯 Get Your FREE Professional Consultation</CardTitle>
             <p className="text-muted-foreground font-medium">
               {activityLevel === "Severe"
                 ? "Emergency consultation available - Don't wait, call now!"
                 : activityLevel === "High"
-                ? "Priority scheduling available - Secure your spot today!"
-                : "Expert advice to prevent escalation - Schedule now!"}
+                  ? "Priority scheduling available - Secure your spot today!"
+                  : "Expert advice to prevent escalation - Schedule now!"}
             </p>
           </CardHeader>
           <CardContent>
             <Button
-              className={`w-full justify-center text-lg py-6 ${
-                themeColors.primary
-              } ${themeColors.primaryText} ${
+              className={`w-full justify-center text-lg py-6 ${themeColors.primary} ${themeColors.primaryText} ${
                 activityLevel === "Severe" ? "animate-pulse" : ""
               } ${themeColors.glow}`}
               size="lg"
-              onClick={() =>
-                handleContactClick(setShowContactForm, setContactType)
-              }
+              onClick={() => handleContactClick(setShowContactForm, setContactType)}
             >
               <Phone className="w-6 h-6 mr-3" />
               {activityLevel === "Severe"
                 ? "🚨 EMERGENCY CONSULTATION - CALL NOW"
                 : activityLevel === "High"
-                ? "⚡ PRIORITY CONSULTATION - SCHEDULE TODAY"
-                : "📞 FREE CONSULTATION - BOOK NOW"}
+                  ? "⚡ PRIORITY CONSULTATION - SCHEDULE TODAY"
+                  : "📞 FREE CONSULTATION - BOOK NOW"}
             </Button>
 
             <div className="mt-4 text-center">
@@ -756,13 +677,13 @@ function ResultsPage({
                 {activityLevel === "Severe"
                   ? "⏰ Same-day service available • 24/7 emergency response"
                   : activityLevel === "High"
-                  ? "⏰ Next-day service available • Limited slots remaining"
-                  : "⏰ Flexible scheduling • Prevention is key"}
+                    ? "⏰ Next-day service available • Limited slots remaining"
+                    : "⏰ Flexible scheduling • Prevention is key"}
               </p>
             </div>
           </CardContent>
         </Card>
       </div>
     </div>
-  );
+  )
 }

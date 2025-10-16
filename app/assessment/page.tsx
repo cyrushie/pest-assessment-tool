@@ -19,10 +19,6 @@ export default function AssessmentPage() {
       return;
     }
     setUserData(JSON.parse(storedUserData));
-
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem("pest_assessment_results_message_sent");
-    }
   }, [router]);
 
   if (!userData) {

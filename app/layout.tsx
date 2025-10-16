@@ -1,33 +1,34 @@
+import "./globals.css";
 import type React from "react";
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
-import "./globals.css";
+import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { Suspense } from "react";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Pest Assessment Tool - Professional Pest Identification",
+  title: "Professional Pest Assessment | AI-Powered Pest Identification",
   description:
-    "Get professional pest identification and consultation through our comprehensive assessment tool. Track your pest issues and connect with experts.",
+    "Get instant AI-powered pest identification and expert recommendations. Upload photos, describe your situation, and receive professional pest control solutions in minutes.",
   generator: "v0.app",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <html lang="en">
-      <head>
-        <style>{`
-html {
-  font-family: ${GeistSans.style.fontFamily};
-  --font-sans: ${GeistSans.variable};
-  --font-mono: ${GeistMono.variable};
-}
-        `}</style>
-      </head>
-      <body>{children}</body>
+      <body className={`font-sans ${inter.variable} antialiased`}>
+        <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+        <Analytics />
+      </body>
     </html>
   );
 }

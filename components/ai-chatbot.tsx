@@ -14,6 +14,7 @@ import {
   User,
   Loader2,
   Sparkles,
+  ImageIcon,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
@@ -22,36 +23,23 @@ interface Message {
   content: string;
   sender: "user" | "bot";
   timestamp: Date;
+  imageUrl?: string;
 }
 
 interface ChatbotProps {
   userName?: string;
   userEmail?: string;
   centered?: boolean;
-  currentQuestion?: number;
-  answers?: { [key: number]: string | string[] };
-  onSuggestAction?: (action: string) => void;
-  assessmentResults?: {
-    primaryPest: string;
-    severity: string;
-    selectedPests: string[];
-  };
 }
 
 const CHAT_HISTORY_KEY = "pest_assessment_chat_history";
-const RESULTS_MESSAGE_SENT_KEY = "pest_assessment_results_message_sent";
 
 export function AIChatbot({
   userName,
   userEmail,
   centered = false,
-  currentQuestion,
-  answers,
-  onSuggestAction,
-  assessmentResults,
 }: ChatbotProps) {
   const [isOpen, setIsOpen] = useState(centered);
-  const resultsMessageSentRef = useRef(false);
 
   const [messages, setMessages] = useState<Message[]>(() => {
     if (typeof window !== "undefined") {
@@ -73,8 +61,8 @@ export function AIChatbot({
       {
         id: "1",
         content: userName
-          ? `Hi ${userName}! 👋 I'm your AI pest assessment assistant. I'm here to help you identify and understand your pest situation through a friendly conversation.\n\nLet's get started! **What type of pest are you dealing with?** (For example: ants, spiders, rodents, cockroaches, etc.)`
-          : "Hi! 👋 I'm your AI pest assessment assistant. I'm here to help you identify and understand your pest situation through a friendly conversation.\n\nLet's get started! **What type of pest are you dealing with?**",
+          ? `Hi ${userName}! I'm your AI pest assessment assistant. I'm here to help you identify your pest situation and connect you with the right solutions.\n\nWhat kind of pest are you dealing with? You can describe it to me, or if you'd like, you can upload a photo and I'll help identify it for you.`
+          : "Hi! I'm your AI pest assessment assistant. I'm here to help you identify your pest situation and connect you with the right solutions.\n\nWhat kind of pest are you dealing with? You can describe it to me, or if you'd like, you can upload a photo and I'll help identify it for you.",
         sender: "bot",
         timestamp: new Date(),
       },
@@ -83,69 +71,17 @@ export function AIChatbot({
 
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (centered) {
       setIsOpen(true);
     }
   }, [centered]);
-
-  useEffect(() => {
-    if (
-      assessmentResults &&
-      typeof window !== "undefined" &&
-      !resultsMessageSentRef.current
-    ) {
-      const messageAlreadySent = sessionStorage.getItem(
-        RESULTS_MESSAGE_SENT_KEY
-      );
-
-      if (!messageAlreadySent) {
-        resultsMessageSentRef.current = true;
-
-        const generateResultsMessage = async () => {
-          setIsLoading(true);
-          try {
-            const response = await fetch("/api/chat", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                message: "generate_initial_results_message",
-                userName: userName,
-                assessmentResults: assessmentResults,
-              }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-              const newMessage: Message = {
-                id: Date.now().toString(),
-                content: data.response,
-                sender: "bot",
-                timestamp: new Date(),
-              };
-              setMessages((prev) => [...prev, newMessage]);
-              sessionStorage.setItem(RESULTS_MESSAGE_SENT_KEY, "true");
-              setIsOpen((prev) => prev || true);
-            }
-          } catch (error) {
-            console.error("Error generating results message:", error);
-            resultsMessageSentRef.current = false;
-          } finally {
-            setIsLoading(false);
-          }
-        };
-
-        generateResultsMessage();
-      } else {
-        resultsMessageSentRef.current = true;
-      }
-    }
-  }, [assessmentResults, userName]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && messages.length > 0) {
@@ -171,17 +107,55 @@ export function AIChatbot({
     setMessages((prev) => [...prev, newMessage]);
   };
 
-  const addUserMessage = (content: string) => {
+  const addUserMessage = (content: string, imageUrl?: string) => {
     const newMessage: Message = {
       id: Date.now().toString(),
       content,
       sender: "user",
       timestamp: new Date(),
+      imageUrl,
     };
     setMessages((prev) => [...prev, newMessage]);
   };
 
-  const generateBotResponse = async (userMessage: string) => {
+  const handleImageUpload = async (file: File) => {
+    try {
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Upload failed");
+      }
+
+      setUploadedImage(data.url);
+      return data.url;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      addBotMessage(
+        "Sorry, I had trouble uploading that image. Please try again."
+      );
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const saveToGoogleSheets = async () => {
+    console.log("[v0] Data saving is now handled by AI tool in the chat API");
+  };
+
+  const generateBotResponse = async (
+    userMessage: string,
+    imageUrl?: string
+  ) => {
     try {
       setIsLoading(true);
 
@@ -201,7 +175,7 @@ export function AIChatbot({
           message: userMessage,
           history: conversationHistory,
           userName: userName,
-          assessmentResults: assessmentResults,
+          imageUrl: imageUrl,
         }),
       });
 
@@ -214,21 +188,33 @@ export function AIChatbot({
       return data.response;
     } catch (error) {
       console.error("Error getting AI response:", error);
-      return "I apologize, but I'm having trouble responding right now. Please try again or continue with your assessment. If you need immediate help, feel free to schedule a consultation!";
+      return "I apologize, but I'm having trouble responding right now. Please try again or continue with your assessment.";
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+  const handleSendMessage = async (messageText?: string) => {
+    const textToSend = messageText || inputValue.trim();
+    if ((!textToSend && !uploadedImage) || isLoading) return;
 
-    addUserMessage(inputValue);
-    const userMsg = inputValue;
+    const imageToSend = uploadedImage;
+    addUserMessage(
+      textToSend || "Here's an image of the pest",
+      imageToSend || undefined
+    );
     setInputValue("");
+    setUploadedImage(null);
 
-    const response = await generateBotResponse(userMsg);
+    const response = await generateBotResponse(
+      textToSend || "Can you identify this pest from the image?",
+      imageToSend || undefined
+    );
     addBotMessage(response);
+
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -237,22 +223,34 @@ export function AIChatbot({
     }
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await handleImageUpload(file);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   if (centered) {
     return (
       <Card className="w-full max-w-4xl shadow-2xl border-2 flex flex-col h-[calc(100vh-200px)] max-h-[800px]">
         <CardHeader className="p-4 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-b flex-shrink-0">
-          <div className="flex items-center justify-center gap-3">
-            <div className="bg-primary/20 p-2 rounded-full">
-              <Bot className="w-6 h-6 text-primary" />
-            </div>
-            <div className="text-center">
-              <CardTitle className="text-xl font-bold flex items-center gap-2 justify-center">
-                AI Pest Assessment Assistant
-                <Sparkles className="w-5 h-5 text-primary" />
-              </CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                Let's have a conversation about your pest situation
-              </p>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/20 p-2 rounded-full">
+                <Bot className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-xl font-bold flex items-center gap-2">
+                  AI Pest Assessment
+                  <Sparkles className="w-5 h-5 text-primary" />
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Conversational pest identification
+                </p>
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -289,6 +287,13 @@ export function AIChatbot({
                         message.sender === "user" ? "" : "text-foreground"
                       }`}
                     >
+                      {message.imageUrl && (
+                        <img
+                          src={message.imageUrl || "/placeholder.svg"}
+                          alt="Uploaded pest"
+                          className="rounded-lg mb-3 max-w-full h-auto max-h-64 object-contain"
+                        />
+                      )}
                       {message.sender === "bot" ? (
                         <ReactMarkdown
                           components={{
@@ -366,8 +371,47 @@ export function AIChatbot({
           </div>
 
           <div className="border-t-2 border-border p-6 bg-card/50 backdrop-blur-sm flex-shrink-0">
+            {uploadedImage && (
+              <div className="mb-3 relative inline-block">
+                <img
+                  src={uploadedImage || "/placeholder.svg"}
+                  alt="Preview"
+                  className="rounded-lg h-20 w-20 object-cover border-2"
+                />
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                  onClick={() => setUploadedImage(null)}
+                >
+                  <X className="w-3 h-3" />
+                </Button>
+              </div>
+            )}
             <div className="flex gap-3">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+                disabled={isLoading || isUploading}
+              />
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isLoading || isUploading}
+                className="rounded-full h-12 px-4"
+              >
+                {isUploading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <ImageIcon className="w-5 h-5" />
+                )}
+              </Button>
               <Input
+                ref={inputRef}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
@@ -377,8 +421,8 @@ export function AIChatbot({
               />
               <Button
                 size="lg"
-                onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isLoading}
+                onClick={() => handleSendMessage()}
+                disabled={(!inputValue.trim() && !uploadedImage) || isLoading}
                 className="rounded-full w-12 h-12 p-0"
               >
                 {isLoading ? (
@@ -389,7 +433,7 @@ export function AIChatbot({
               </Button>
             </div>
             <p className="text-xs text-muted-foreground text-center mt-3">
-              Press Enter to send • Powered by AI
+              Press Enter to send • Upload images • Powered by AI
             </p>
           </div>
         </CardContent>
@@ -421,7 +465,7 @@ export function AIChatbot({
           <div className="flex items-center justify-between">
             <CardTitle className="text-base flex items-center gap-2 font-semibold">
               <div className="bg-primary/10 p-1.5 rounded-full">
-                <Bot className="w-4 h-4 text-primary" />
+                <Bot className="w-3.5 h-3.5 text-primary" />
               </div>
               Pest Assessment Assistant
               <Badge variant="secondary" className="text-xs">
@@ -473,6 +517,13 @@ export function AIChatbot({
                         message.sender === "user" ? "" : "text-foreground"
                       }`}
                     >
+                      {message.imageUrl && (
+                        <img
+                          src={message.imageUrl || "/placeholder.svg"}
+                          alt="Uploaded pest"
+                          className="rounded-lg mb-3 max-w-full h-auto max-h-64 object-contain"
+                        />
+                      )}
                       {message.sender === "bot" ? (
                         <ReactMarkdown
                           components={{
@@ -550,8 +601,47 @@ export function AIChatbot({
           </div>
 
           <div className="border-t border-border p-4 bg-background flex-shrink-0">
-            <div className="flex gap-2">
+            {uploadedImage && (
+              <div className="mb-3 relative inline-block">
+                <img
+                  src={uploadedImage || "/placeholder.svg"}
+                  alt="Preview"
+                  className="rounded-lg h-20 w-20 object-cover border-2"
+                />
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                  onClick={() => setUploadedImage(null)}
+                >
+                  <X className="w-3 h-3" />
+                </Button>
+              </div>
+            )}
+            <div className="flex gap-3">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+                disabled={isLoading || isUploading}
+              />
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isLoading || isUploading}
+                className="rounded-full h-12 px-4"
+              >
+                {isUploading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <ImageIcon className="w-5 h-5" />
+                )}
+              </Button>
               <Input
+                ref={inputRef}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
@@ -561,7 +651,7 @@ export function AIChatbot({
               />
               <Button
                 size="sm"
-                onClick={handleSendMessage}
+                onClick={() => handleSendMessage()}
                 disabled={!inputValue.trim() || isLoading}
                 className="rounded-full w-9 h-9 p-0"
               >
